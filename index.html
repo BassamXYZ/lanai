@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAN AI — منصة الذكاء الاصطناعي العربية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+<div id="landing" class="page active">
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="logo-icon">🕊️</div>
+      <span class="logo-text">LAN AI</span>
+    </div>
+    <div class="nav-links">
+      <a onclick="scrollToSection('features')">الميزات</a>
+      <a onclick="scrollToSection('howit')">كيف تعمل؟</a>
+      <a onclick="scrollToSection('pricing')">الأسعار</a>
+      <a onclick="scrollToSection('contact')">تواصل معنا</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <i class="fas fa-circle c-green"></i>
+      منصة الذكاء الاصطناعي العربية الأولى — مُطلقة الآن
+    </div>
+    <h1 class="hero-title">
+      <span class="white">كل أدوات الذكاء</span>
+      <span>الاصطناعي</span>
+      <span class="white">في مكان واحد</span>
+    </h1>
+    <p class="hero-sub">
+      LAN AI تجمع أقوى أدوات الذكاء الاصطناعي في واجهة عربية موحدة — من المكالمات الذكية والترجمة الفورية إلى توليد المحتوى وتحليل البيانات.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">18+</div>
+        <div class="stat-label">أداة ذكاء اصطناعي</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">50+</div>
+        <div class="stat-label">لغة مدعومة</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">99.9%</div>
+        <div class="stat-label">وقت تشغيل مضمون</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">10K+</div>
+        <div class="stat-label">مستخدم نشط</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marquee">
+      <span class="marquee-item"><i class="fas fa-microphone"></i> تسجيل صوتي</span>
+      <span class="marquee-item"><i class="fas fa-video"></i> مكالمات فيديو</span>
+      <span class="marquee-item"><i class="fas fa-language"></i> مترجم متعدد اللغات</span>
+      <span class="marquee-item"><i class="fas fa-file-alt"></i> كتابة المحتوى</span>
+      <span class="marquee-item"><i class="fas fa-qrcode"></i> قراءة QR</span>
+      <span class="marquee-item"><i class="fas fa-book"></i> قراءة الكتب</span>
+      <span class="marquee-item"><i class="fas fa-image"></i> توليد الصور</span>
+      <span class="marquee-item"><i class="fas fa-wallet"></i> المحفظة الحسابية</span>
+      <span class="marquee-item"><i class="fas fa-plane"></i> الخدمات السياحية</span>
+      <span class="marquee-item"><i class="fas fa-spell-check"></i> التصحيح اللغوي</span>
+      <!-- Duplicate for loop -->
+      <span class="marquee-item"><i class="fas fa-microphone"></i> تسجيل صوتي</span>
+      <span class="marquee-item"><i class="fas fa-video"></i> مكالمات فيديو</span>
+      <span class="marquee-item"><i class="fas fa-language"></i> مترجم متعدد اللغات</span>
+      <span class="marquee-item"><i class="fas fa-file-alt"></i> كتابة المحتوى</span>
+      <span class="marquee-item"><i class="fas fa-qrcode"></i> قراءة QR</span>
+      <span class="marquee-item"><i class="fas fa-book"></i> قراءة الكتب</span>
+      <span class="marquee-item"><i class="fas fa-image"></i> توليد الصور</span>
+      <span class="marquee-item"><i class="fas fa-wallet"></i> المحفظة الحسابية</span>
+      <span class="marquee-item"><i class="fas fa-plane"></i> الخدمات السياحية</span>
+      <span class="marquee-item"><i class="fas fa-spell-check"></i> التصحيح اللغوي</span>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-header">
+      <div class="section-tag">✦ أدوات المنصة</div>
+      <h2 class="section-title">كل ما تحتاجه <span>بنقرة واحدة</span></h2>
+      <p class="section-sub">18 أداة ذكاء اصطناعي مدمجة في منصة واحدة، مصممة خصيصاً للمستخدم العربي.</p>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card" onclick="enterDashboard('voice-call')">
+        <div class="tool-icon-wrap bg-gold"><i class="fas fa-phone c-gold"></i></div>
+        <div class="tool-name">المكالمات الصوتية</div>
+        <div class="tool-desc">مكالمات صوتية عالية الجودة مع ترجمة فورية وذكاء اصطناعي يحلل المحادثات.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('video-call')">
+        <div class="tool-icon-wrap bg-blue"><i class="fas fa-video c-blue"></i></div>
+        <div class="tool-name">مكالمات الفيديو</div>
+        <div class="tool-desc">مكالمات مرئية بجودة HD مع خلفيات ذكية وفلاتر معالجة صوتية.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('recorder')">
+        <div class="tool-icon-wrap bg-red"><i class="fas fa-microphone c-red"></i></div>
+        <div class="tool-name">تسجيل الصوت</div>
+        <div class="tool-desc">سجّل وأدر ملفاتك الصوتية بجودة عالية مباشرة من المتصفح.</div>
+        <span class="tool-badge badge-live">مفعّل الآن</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('voice-translator')">
+        <div class="tool-icon-wrap bg-teal"><i class="fas fa-headphones c-teal"></i></div>
+        <div class="tool-name">المترجم الصوتي</div>
+        <div class="tool-desc">ترجم الصوت فوريًا بين العربية وأكثر من 50 لغة عالمية.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('translator')">
+        <div class="tool-icon-wrap bg-purple"><i class="fas fa-language c-purple"></i></div>
+        <div class="tool-name">مترجم متعدد اللغات</div>
+        <div class="tool-desc">ترجمة نصية فائقة الدقة مع الحفاظ على السياق والأسلوب.</div>
+        <span class="tool-badge badge-live">مفعّل الآن</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('stt')">
+        <div class="tool-icon-wrap bg-orange"><i class="fas fa-wave-square c-orange"></i></div>
+        <div class="tool-name">تحويل الصوت ↔ نص</div>
+        <div class="tool-desc">تفريغ الصوت لنص ونص لصوت بدقة استثنائية في اللهجات العربية.</div>
+        <span class="tool-badge badge-live">مفعّل الآن</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('files')">
+        <div class="tool-icon-wrap bg-cyan"><i class="fas fa-folder-open c-cyan"></i></div>
+        <div class="tool-name">حافظة الملفات</div>
+        <div class="tool-desc">إدارة وتخزين ومشاركة ملفاتك بأمان تام مع تحليل ذكي للمحتوى.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('grammar')">
+        <div class="tool-icon-wrap bg-green"><i class="fas fa-spell-check c-green"></i></div>
+        <div class="tool-name">التصحيح اللغوي</div>
+        <div class="tool-desc">تصحيح النحو والإملاء وتحسين الأسلوب في النصوص العربية.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('tasks')">
+        <div class="tool-icon-wrap bg-gold"><i class="fas fa-check-square c-gold"></i></div>
+        <div class="tool-name">مذكرة المهام</div>
+        <div class="tool-desc">إدارة مهامك اليومية وجدول أعمالك بطريقة ذكية ومنظمة.</div>
+        <span class="tool-badge badge-live">مفعّل الآن</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('content')">
+        <div class="tool-icon-wrap bg-pink"><i class="fas fa-pen-nib c-pink"></i></div>
+        <div class="tool-name">كتابة المحتوى</div>
+        <div class="tool-desc">أنشئ محتوى احترافي — مقالات، إعلانات، منشورات — بدقيقة واحدة.</div>
+        <span class="tool-badge badge-live">مفعّل الآن</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('research')">
+        <div class="tool-icon-wrap bg-blue"><i class="fas fa-microscope c-blue"></i></div>
+        <div class="tool-name">كتابة الأبحاث</div>
+        <div class="tool-desc">احصل على أبحاث علمية ودراسات موثّقة بمصادر موثوقة ودقيقة.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('qr')">
+        <div class="tool-icon-wrap bg-teal"><i class="fas fa-qrcode c-teal"></i></div>
+        <div class="tool-name">قراءة QR والباركود</div>
+        <div class="tool-desc">قراءة وتوليد أكواد QR والباركود مباشرة من كاميرا جهازك.</div>
+        <span class="tool-badge badge-live">مفعّل الآن</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('ebooks')">
+        <div class="tool-icon-wrap bg-orange"><i class="fas fa-book-reader c-orange"></i></div>
+        <div class="tool-name">قراءة الكتب الإلكترونية</div>
+        <div class="tool-desc">اقرأ وحلّل كتبك الإلكترونية مع ملخصات ذكية ونقاط رئيسية.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('media-gen')">
+        <div class="tool-icon-wrap bg-purple"><i class="fas fa-magic c-purple"></i></div>
+        <div class="tool-name">توليد الفيديوهات والصور</div>
+        <div class="tool-desc">ولّد صوراً وفيديوهات احترافية باستخدام أحدث نماذج الذكاء الاصطناعي.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('prices')">
+        <div class="tool-icon-wrap bg-green"><i class="fas fa-chart-line c-green"></i></div>
+        <div class="tool-name">مزامنة الأسعار</div>
+        <div class="tool-desc">تتبع أسعار السوق والعملات والسلع في الوقت الفعلي مع تنبيهات ذكية.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('tourism')">
+        <div class="tool-icon-wrap bg-cyan"><i class="fas fa-plane c-cyan"></i></div>
+        <div class="tool-name">الخدمات السياحية</div>
+        <div class="tool-desc">خطط لرحلاتك واحجز فنادقك وأدر برامجك السياحية بمساعدة الذكاء الاصطناعي.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('wallet')">
+        <div class="tool-icon-wrap bg-gold"><i class="fas fa-wallet c-gold"></i></div>
+        <div class="tool-name">المحفظة الحسابية</div>
+        <div class="tool-desc">إدارة مالية ذكية — تتبع الإنفاق، التوفير، والتخطيط المالي الذكي.</div>
+        <span class="tool-badge badge-live">مفعّل الآن</span>
+      </div>
+      <div class="tool-card" onclick="enterDashboard('alexa')">
+        <div class="tool-icon-wrap bg-blue"><i class="fas fa-assistive-listening-systems c-blue"></i></div>
+        <div class="tool-name">ربط Alexa</div>
+        <div class="tool-desc">ادمج منصة LAN AI مع Amazon Alexa للتحكم الصوتي الكامل بجميع الأدوات.</div>
+        <span class="tool-badge badge-soon">قريباً</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">🕊️ LAN AI</div>
+    <p class="footer-text">منصة الذكاء الاصطناعي العربية الأولى — جميع الأدوات في مكان واحد</p>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:20px;">© 2025 LAN AI. جميع الحقوق محفوظة.</p>
+  </footer>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div id="dashboard" class="page">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon" onclick="exitDashboard()">🕊️</div>
+        <span>LAN AI</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">الرئيسية</div>
+        <div class="nav-item active" onclick="showView('home', this)">
+          <i class="fas fa-home"></i> لوحة التحكم
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">التواصل والصوت</div>
+        <div class="nav-item" onclick="showView('voice-call', this)">
+          <i class="fas fa-phone"></i> المكالمات الصوتية
+        </div>
+        <div class="nav-item" onclick="showView('video-call', this)">
+          <i class="fas fa-video"></i> مكالمات الفيديو
+        </div>
+        <div class="nav-item" onclick="showView('recorder', this)">
+          <i class="fas fa-microphone"></i> تسجيل الصوت
+          <span class="item-badge">مباشر</span>
+        </div>
+        <div class="nav-item" onclick="showView('voice-translator', this)">
+          <i class="fas fa-headphones"></i> المترجم الصوتي
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">اللغة والنصوص</div>
+        <div class="nav-item" onclick="showView('translator', this)">
+          <i class="fas fa-language"></i> مترجم متعدد اللغات
+        </div>
+        <div class="nav-item" onclick="showView('stt', this)">
+          <i class="fas fa-wave-square"></i> صوت ↔ نص
+        </div>
+        <div class="nav-item" onclick="showView('grammar', this)">
+          <i class="fas fa-spell-check"></i> التصحيح اللغوي
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">الإنتاجية</div>
+        <div class="nav-item" onclick="showView('tasks', this)">
+          <i class="fas fa-check-square"></i> مذكرة المهام
+          <span class="item-badge">مباشر</span>
+        </div>
+        <div class="nav-item" onclick="showView('content', this)">
+          <i class="fas fa-pen-nib"></i> كتابة المحتوى
+        </div>
+        <div class="nav-item" onclick="showView('research', this)">
+          <i class="fas fa-microscope"></i> كتابة الأبحاث
+        </div>
+        <div class="nav-item" onclick="showView('files', this)">
+          <i class="fas fa-folder-open"></i> حافظة الملفات
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">أدوات الذكاء</div>
+        <div class="nav-item" onclick="showView('qr', this)">
+          <i class="fas fa-qrcode"></i> قراءة QR
+          <span class="item-badge">مباشر</span>
+        </div>
+        <div class="nav-item" onclick="showView('ebooks', this)">
+          <i class="fas fa-book-reader"></i> الكتب الإلكترونية
+        </div>
+        <div class="nav-item" onclick="showView('media-gen', this)">
+          <i class="fas fa-magic"></i> توليد الوسائط
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">الأعمال والمال</div>
+        <div class="nav-item" onclick="showView('prices', this)">
+          <i class="fas fa-chart-line"></i> مزامنة الأسعار
+        </div>
+        <div class="nav-item" onclick="showView('tourism', this)">
+          <i class="fas fa-plane"></i> الخدمات السياحية
+        </div>
+        <div class="nav-item" onclick="showView('wallet', this)">
+          <i class="fas fa-wallet"></i> المحفظة الحسابية
+          <span class="item-badge">مباشر</span>
+        </div>
+        <div class="nav-item" onclick="showView('alexa', this)">
+          <i class="fas fa-assistive-listening-systems"></i> ربط Alexa
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">الحساب</div>
+        <div class="nav-item" onclick="goLanding()">
+          <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">م</div>
+        <div>
+          <div class="user-name">محمد الأحمد</div>
+          <div class="user-plan">✦ الخطة الاحترافية</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">لوحة التحكم</div>
+      <div class="topbar-actions">
+        <div class="icon-btn" title="بحث"><i class="fas fa-search"></i></div>
+        <div class="icon-btn" title="الإشعارات"><i class="fas fa-bell"></i></div>
+        <div class="icon-btn" title="الإعدادات"><i class="fas fa-cog"></i></div>
+        <div class="icon-btn" title="خروج" onclick="exitDashboard()"><i class="fas fa-sign-out"></i></div>      
+      </div>
+    </div>
+
+    <!-- ===== HOME VIEW ===== -->
+    <div id="view-home" class="tool-view active">
+      <div class="welcome-banner">
+        <div class="welcome-text">
+          <h2>أهلاً بك، محمد 👋</h2>
+          <p>لديك <strong style="color:var(--gold)">3 مهام</strong> معلقة و<strong style="color:var(--gold)">5 أدوات</strong> جاهزة للاستخدام اليوم.</p>
+        </div>
+        <div class="welcome-bird">🕊️</div>
+      </div>
+
+      <div class="quick-stats">
+        <div class="stat-card">
+          <div class="stat-card-icon bg-gold"><i class="fas fa-bolt c-gold"></i></div>
+          <div class="stat-card-val" style="color:var(--gold)">247</div>
+          <div class="stat-card-label">طلب هذا الشهر</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon bg-green"><i class="fas fa-check-circle c-green"></i></div>
+          <div class="stat-card-val" style="color:var(--green)">18</div>
+          <div class="stat-card-label">مهمة مكتملة</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon bg-blue"><i class="fas fa-clock c-blue"></i></div>
+          <div class="stat-card-val" style="color:#3498db">4.2h</div>
+          <div class="stat-card-label">وقت موفّر هذا الأسبوع</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon bg-purple"><i class="fas fa-star c-purple"></i></div>
+          <div class="stat-card-val" style="color:#9b59b6">98%</div>
+          <div class="stat-card-label">مستوى الرضا</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:17px;font-weight:700;margin-bottom:16px;color:var(--text-muted);">⚡ الوصول السريع</h3>
+      <div class="dash-grid">
+        <div class="dash-tool-card" onclick="showView('recorder', null)"><div class="dash-tool-icon bg-red"><i class="fas fa-microphone c-red"></i></div><div class="dash-tool-info"><div class="dash-tool-name">تسجيل الصوت</div><div class="dash-tool-short">مفعّل الآن</div></div></div>
+        <div class="dash-tool-card" onclick="showView('translator', null)"><div class="dash-tool-icon bg-purple"><i class="fas fa-language c-purple"></i></div><div class="dash-tool-info"><div class="dash-tool-name">المترجم</div><div class="dash-tool-short">50+ لغة</div></div></div>
+        <div class="dash-tool-card" onclick="showView('stt', null)"><div class="dash-tool-icon bg-orange"><i class="fas fa-wave-square c-orange"></i></div><div class="dash-tool-info"><div class="dash-tool-name">صوت ↔ نص</div><div class="dash-tool-short">تحويل فوري</div></div></div>
+        <div class="dash-tool-card" onclick="showView('tasks', null)"><div class="dash-tool-icon bg-gold"><i class="fas fa-check-square c-gold"></i></div><div class="dash-tool-info"><div class="dash-tool-name">مذكرة المهام</div><div class="dash-tool-short">3 مهام معلقة</div></div></div>
+        <div class="dash-tool-card" onclick="showView('content', null)"><div class="dash-tool-icon bg-pink"><i class="fas fa-pen-nib c-pink"></i></div><div class="dash-tool-info"><div class="dash-tool-name">كتابة المحتوى</div><div class="dash-tool-short">AI مدعوم</div></div></div>
+        <div class="dash-tool-card" onclick="showView('qr', null)"><div class="dash-tool-icon bg-teal"><i class="fas fa-qrcode c-teal"></i></div><div class="dash-tool-info"><div class="dash-tool-name">قارئ QR</div><div class="dash-tool-short">كاميرا مباشرة</div></div></div>
+        <div class="dash-tool-card" onclick="showView('wallet', null)"><div class="dash-tool-icon bg-gold"><i class="fas fa-wallet c-gold"></i></div><div class="dash-tool-info"><div class="dash-tool-name">المحفظة</div><div class="dash-tool-short">رصيدك: 1,250 ر.س</div></div></div>
+        <div class="dash-tool-card" onclick="showView('voice-call', null)"><div class="dash-tool-icon bg-gold"><i class="fas fa-phone c-gold"></i></div><div class="dash-tool-info"><div class="dash-tool-name">مكالمة صوتية</div><div class="dash-tool-short">قريباً</div></div></div>
+      </div>
+    </div>
+
+    <!-- ===== VOICE CALL ===== -->
+    <div id="view-voice-call" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-gold"><i class="fas fa-phone c-gold"></i></div>
+        <div><div class="panel-title">المكالمات الصوتية</div><div class="panel-sub">مكالمات ذكية مع تحليل فوري</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-phone"></i><h3>قريباً جداً</h3><p>ميزة المكالمات الصوتية الذكية ستكون متاحة قريباً مع دعم الترجمة الفورية وتحليل المشاعر.</p></div>
+    </div>
+
+    <!-- ===== VIDEO CALL ===== -->
+    <div id="view-video-call" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-blue"><i class="fas fa-video c-blue"></i></div>
+        <div><div class="panel-title">مكالمات الفيديو</div><div class="panel-sub">مكالمات مرئية بخلفيات ذكية</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-video"></i><h3>قريباً جداً</h3><p>ميزة مكالمات الفيديو بجودة HD مع خلفيات ذكية وفلاتر معالجة صوتية ستكون متاحة قريباً.</p></div>
+    </div>
+
+    <!-- ===== RECORDER ===== -->
+    <div id="view-recorder" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-red"><i class="fas fa-microphone c-red"></i></div>
+        <div><div class="panel-title">تسجيل الصوت</div><div class="panel-sub">سجّل وأدر ملفاتك الصوتية</div></div>
+      </div>
+      <div class="recorder-ui">
+        <p id="rec-label" style="font-size:15px;color:var(--text-muted);">اضغط لبدء التسجيل</p>
+        <div class="rec-waveform" id="waveform">
+          <div class="wave-bar" style="height:8px" id="wb1"></div>
+          <div class="wave-bar" style="height:8px" id="wb2"></div>
+          <div class="wave-bar" style="height:8px" id="wb3"></div>
+          <div class="wave-bar" style="height:8px" id="wb4"></div>
+          <div class="wave-bar" style="height:8px" id="wb5"></div>
+          <div class="wave-bar" style="height:8px" id="wb6"></div>
+          <div class="wave-bar" style="height:8px" id="wb7"></div>
+          <div class="wave-bar" style="height:8px" id="wb8"></div>
+          <div class="wave-bar" style="height:8px" id="wb9"></div>
+          <div class="wave-bar" style="height:8px" id="wb10"></div>
+          <div class="wave-bar" style="height:8px" id="wb11"></div>
+          <div class="wave-bar" style="height:8px" id="wb12"></div>
+        </div>
+        <div class="rec-btn" id="rec-btn" onclick="toggleRecording()">
+          <i class="fas fa-microphone" id="rec-icon"></i>
+        </div>
+        <div class="rec-timer" id="rec-timer">00:00</div>
+        <div class="rec-status" id="rec-status">جاهز للتسجيل</div>
+        <div class="recordings-list" id="recordings-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== VOICE TRANSLATOR ===== -->
+    <div id="view-voice-translator" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-teal"><i class="fas fa-headphones c-teal"></i></div>
+        <div><div class="panel-title">المترجم الصوتي</div><div class="panel-sub">ترجمة فورية للصوت بين اللغات</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-headphones"></i><h3>قريباً جداً</h3><p>ترجمة فورية للكلام بين العربية وأكثر من 50 لغة عالمية — قريباً.</p></div>
+    </div>
+
+    <!-- ===== TRANSLATOR ===== -->
+    <div id="view-translator" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-purple"><i class="fas fa-language c-purple"></i></div>
+        <div><div class="panel-title">مترجم متعدد اللغات</div><div class="panel-sub">ترجمة نصية دقيقة بأكثر من 50 لغة</div></div>
+      </div>
+      <div class="translator-ui">
+        <div class="translator-panel">
+          <div class="translator-header">
+            <span style="font-size:14px;font-weight:700;">النص الأصلي</span>
+            <select class="lang-select" id="tr-from">
+              <option value="ar">العربية</option>
+              <option value="en">الإنجليزية</option>
+              <option value="fr">الفرنسية</option>
+              <option value="de">الألمانية</option>
+              <option value="es">الإسبانية</option>
+              <option value="zh">الصينية</option>
+              <option value="ja">اليابانية</option>
+              <option value="tr">التركية</option>
+            </select>
+          </div>
+          <textarea class="stt-textarea" id="tr-input" placeholder="اكتب النص هنا للترجمة..." style="min-height:200px;"></textarea>
+          <button class="btn-gold" style="margin-top:12px;padding:10px 24px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;" onclick="doTranslate()"><i class="fas fa-exchange-alt"></i> ترجم الآن</button>
+        </div>
+        <div class="swap-btn" onclick="swapLangs()"><i class="fas fa-exchange-alt"></i></div>
+        <div class="translator-panel">
+          <div class="translator-header">
+            <span style="font-size:14px;font-weight:700;">الترجمة</span>
+            <select class="lang-select" id="tr-to">
+              <option value="en">الإنجليزية</option>
+              <option value="ar">العربية</option>
+              <option value="fr">الفرنسية</option>
+              <option value="de">الألمانية</option>
+              <option value="es">الإسبانية</option>
+              <option value="zh">الصينية</option>
+              <option value="ja">اليابانية</option>
+              <option value="tr">التركية</option>
+            </select>
+          </div>
+          <textarea class="stt-textarea" id="tr-output" placeholder="ستظهر الترجمة هنا..." style="min-height:200px;" readonly></textarea>
+          <div style="margin-top:12px;display:flex;gap:10px;">
+            <button class="btn-ghost" style="padding:8px 16px;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;" onclick="copyTrans()"><i class="fas fa-copy"></i> نسخ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STT ===== -->
+    <div id="view-stt" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-orange"><i class="fas fa-wave-square c-orange"></i></div>
+        <div><div class="panel-title">تحويل الصوت ↔ نص</div><div class="panel-sub">تفريغ صوتي وقراءة نصية</div></div>
+      </div>
+      <div class="stt-ui">
+        <div class="stt-panel">
+          <h4><i class="fas fa-microphone"></i> صوت إلى نص</h4>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">اضغط على الزر ثم تحدث، سيتم تحويل كلامك إلى نص فوراً.</p>
+          <div style="text-align:center;margin-bottom:16px;">
+            <div class="rec-btn" style="margin:0 auto 12px;width:70px;height:70px;font-size:24px;" id="stt-btn" onclick="toggleSTT()">
+              <i class="fas fa-microphone" id="stt-icon"></i>
+            </div>
+            <div id="stt-status" style="font-size:13px;color:var(--text-muted);">اضغط للبدء</div>
+          </div>
+          <textarea class="stt-textarea" id="stt-output" placeholder="سيظهر النص المحوّل هنا..." style="min-height:180px;" readonly></textarea>
+        </div>
+        <div class="stt-panel">
+          <h4><i class="fas fa-volume-up"></i> نص إلى صوت</h4>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">اكتب النص أدناه ثم اضغط "قراءة" لسماعه.</p>
+          <textarea class="stt-textarea" id="tts-input" placeholder="اكتب النص الذي تريد سماعه..." style="min-height:130px;"></textarea>
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <select class="writer-select" id="tts-lang" style="flex:1;margin-bottom:0;">
+              <option value="ar-SA">العربية</option>
+              <option value="en-US">الإنجليزية</option>
+              <option value="fr-FR">الفرنسية</option>
+            </select>
+            <button class="btn-gold" style="padding:10px 20px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;white-space:nowrap;" onclick="doTTS()"><i class="fas fa-play"></i> قراءة</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FILES ===== -->
+    <div id="view-files" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-cyan"><i class="fas fa-folder-open c-cyan"></i></div>
+        <div><div class="panel-title">حافظة الملفات</div><div class="panel-sub">إدارة ومشاركة ملفاتك</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-folder-open"></i><h3>قريباً جداً</h3><p>نظام إدارة الملفات الذكي مع تحليل المحتوى والمشاركة الآمنة — قيد التطوير.</p></div>
+    </div>
+
+    <!-- ===== GRAMMAR ===== -->
+    <div id="view-grammar" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-green"><i class="fas fa-spell-check c-green"></i></div>
+        <div><div class="panel-title">التصحيح اللغوي</div><div class="panel-sub">تصحيح النحو والإملاء</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-spell-check"></i><h3>قريباً جداً</h3><p>محرك تصحيح لغوي متقدم للعربية يتعامل مع اللهجات ويصحح الأسلوب — قريباً.</p></div>
+    </div>
+
+    <!-- ===== TASKS ===== -->
+    <div id="view-tasks" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-gold"><i class="fas fa-check-square c-gold"></i></div>
+        <div><div class="panel-title">مذكرة المهام</div><div class="panel-sub">نظّم يومك وأنجز مهامك</div></div>
+      </div>
+      <div class="tasks-ui">
+        <div class="task-input-row">
+          <input class="task-input" id="task-input" type="text" placeholder="أضف مهمة جديدة..." onkeydown="if(event.key==='Enter')addTask()">
+          <button class="btn-gold" style="padding:10px 20px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;white-space:nowrap;" onclick="addTask()"><i class="fas fa-plus"></i> إضافة</button>
+        </div>
+        <div id="tasks-list" class="tasks-list">
+          <div class="task-item">
+            <div class="task-check" onclick="toggleTask(this)"></div>
+            <span class="task-text">مراجعة تقرير الاجتماع الأسبوعي</span>
+            <i class="fas fa-trash task-del" onclick="deleteTask(this)"></i>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="toggleTask(this)"></div>
+            <span class="task-text">إعداد العرض التقديمي للعميل</span>
+            <i class="fas fa-trash task-del" onclick="deleteTask(this)"></i>
+          </div>
+          <div class="task-item">
+            <div class="task-check" onclick="toggleTask(this)"></div>
+            <span class="task-text">متابعة طلبات الدعم الفني</span>
+            <i class="fas fa-trash task-del" onclick="deleteTask(this)"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONTENT ===== -->
+    <div id="view-content" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-pink"><i class="fas fa-pen-nib c-pink"></i></div>
+        <div><div class="panel-title">كتابة المحتوى</div><div class="panel-sub">أنشئ محتوى احترافي فوراً</div></div>
+      </div>
+      <div class="writer-ui">
+        <div class="writer-controls">
+          <label>نوع المحتوى</label>
+          <select class="writer-select" id="content-type">
+            <option>مقال تسويقي</option>
+            <option>منشور سوشيال ميديا</option>
+            <option>إعلان ترويجي</option>
+            <option>وصف منتج</option>
+            <option>بريد إلكتروني</option>
+            <option>خطاب رسمي</option>
+          </select>
+          <label>الموضوع</label>
+          <input class="task-input" id="content-topic" placeholder="موضوع المحتوى..." style="margin-bottom:14px;width:100%;">
+          <label>أسلوب الكتابة</label>
+          <select class="writer-select" id="content-tone">
+            <option>احترافي</option>
+            <option>ودّي وغير رسمي</option>
+            <option>إقناعي</option>
+            <option>إخباري</option>
+            <option>إبداعي</option>
+          </select>
+          <label>طول المحتوى</label>
+          <select class="writer-select" id="content-len">
+            <option>قصير (100-200 كلمة)</option>
+            <option>متوسط (300-500 كلمة)</option>
+            <option>طويل (700+ كلمة)</option>
+          </select>
+          <button class="btn-gold" style="width:100%;padding:12px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;" onclick="generateContent()"><i class="fas fa-magic"></i> توليد المحتوى</button>
+        </div>
+        <div class="writer-output">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <span style="font-size:15px;font-weight:700;">المحتوى المُنشأ</span>
+            <button class="btn-ghost" style="padding:6px 16px;font-family:Cairo,sans-serif;font-size:12px;cursor:pointer;" onclick="copyContent()"><i class="fas fa-copy"></i> نسخ</button>
+          </div>
+          <textarea id="content-output" style="width:100%;background:transparent;border:none;color:var(--text);font-family:Cairo,sans-serif;font-size:15px;line-height:1.9;resize:none;min-height:400px;outline:none;direction:rtl;" placeholder="سيظهر المحتوى هنا بعد الضغط على &quot;توليد المحتوى&quot;..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RESEARCH ===== -->
+    <div id="view-research" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-blue"><i class="fas fa-microscope c-blue"></i></div>
+        <div><div class="panel-title">كتابة الأبحاث</div><div class="panel-sub">أبحاث علمية موثّقة</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-microscope"></i><h3>قريباً جداً</h3><p>محرك الأبحاث الذكي سيساعدك في كتابة أبحاث علمية موثّقة بمصادر موثوقة ودقيقة.</p></div>
+    </div>
+
+    <!-- ===== QR ===== -->
+    <div id="view-qr" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-teal"><i class="fas fa-qrcode c-teal"></i></div>
+        <div><div class="panel-title">قراءة QR والباركود</div><div class="panel-sub">قراءة وتوليد الأكواد</div></div>
+      </div>
+      <div class="qr-ui">
+        <div class="qr-scanner">
+          <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:var(--gold);">📷 قراءة عبر الكاميرا</h4>
+          <div class="qr-frame" id="qr-placeholder"><i class="fas fa-qrcode"></i></div>
+          <video id="qr-video" autoplay playsinline></video>
+          <canvas id="qr-canvas" style="display:none;"></canvas>
+          <button class="btn-gold" id="qr-btn" style="padding:10px 28px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;" onclick="toggleQR()"><i class="fas fa-camera"></i> تشغيل الكاميرا</button>
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--gold);">📁 رفع صورة</h4>
+            <label style="display:inline-block;padding:10px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;color:var(--text-muted);">
+              <i class="fas fa-upload"></i> اختر صورة
+              <input type="file" accept="image/*" style="display:none;" onchange="readQRFile(event)">
+            </label>
+          </div>
+        </div>
+        <div class="qr-result">
+          <h4>📝 نتيجة القراءة</h4>
+          <div class="qr-output" id="qr-output">في انتظار قراءة كود...</div>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--gold);">✨ توليد QR Code</h4>
+            <input class="task-input" id="qr-gen-input" placeholder="أدخل النص أو الرابط..." style="width:100%;margin-bottom:10px;">
+            <button class="btn-ghost" style="padding:10px 20px;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;" onclick="generateQR()"><i class="fas fa-qrcode"></i> توليد الكود</button>
+            <div id="qr-gen-out" style="margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EBOOKS ===== -->
+    <div id="view-ebooks" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-orange"><i class="fas fa-book-reader c-orange"></i></div>
+        <div><div class="panel-title">قراءة الكتب الإلكترونية</div><div class="panel-sub">اقرأ وحلّل كتبك بذكاء</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-book-reader"></i><h3>قريباً جداً</h3><p>قارئ كتب ذكي مع ملخصات تلقائية ونقاط رئيسية وترجمة فورية — قيد التطوير.</p></div>
+    </div>
+
+    <!-- ===== MEDIA GEN ===== -->
+    <div id="view-media-gen" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-purple"><i class="fas fa-magic c-purple"></i></div>
+        <div><div class="panel-title">توليد الفيديوهات والصور</div><div class="panel-sub">ابتكر بصرياً باستخدام الذكاء الاصطناعي</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-magic"></i><h3>قريباً جداً</h3><p>ولّد صوراً وفيديوهات احترافية بأوصاف نصية عربية باستخدام أحدث نماذج توليد الوسائط.</p></div>
+    </div>
+
+    <!-- ===== PRICES ===== -->
+    <div id="view-prices" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-green"><i class="fas fa-chart-line c-green"></i></div>
+        <div><div class="panel-title">مزامنة الأسعار</div><div class="panel-sub">تتبع الأسعار في الوقت الفعلي</div></div>
+      </div>
+      <div class="prices-ui" style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+           <h4 style="color:var(--gold); margin: 0;">أسعار الصرف المباشرة (مقابل 1 دولار أمريكي)</h4>
+           <button class="btn-gold" onclick="fetchExchangeRates()" style="padding: 8px 16px;"><i class="fas fa-sync-alt"></i> تحديث</button>
+        </div>
+        <div id="rates-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px;">
+           <div style="color: var(--text-muted); grid-column: 1 / -1;">اضغط على تحديث لجلب أحدث الأسعار...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TOURISM ===== -->
+    <div id="view-tourism" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-cyan"><i class="fas fa-plane c-cyan"></i></div>
+        <div><div class="panel-title">الخدمات السياحية</div><div class="panel-sub">خطط لرحلتك بذكاء</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-plane"></i><h3>قريباً جداً</h3><p>خطط لرحلاتك واحجز فنادقك وأدر برامجك السياحية بمساعدة الذكاء الاصطناعي.</p></div>
+    </div>
+
+    <!-- ===== WALLET ===== -->
+    <div id="view-wallet" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-gold"><i class="fas fa-wallet c-gold"></i></div>
+        <div><div class="panel-title">المحفظة الحسابية</div><div class="panel-sub">إدارة مالية ذكية</div></div>
+      </div>
+      <div class="wallet-ui">
+        <div class="wallet-balance">
+          <div class="balance-label">الرصيد الحالي</div>
+          <div><span class="balance-amount" id="wallet-amount">1,250</span> <span class="balance-currency">ر.س</span></div>
+          <div class="wallet-actions">
+            <button class="wallet-btn wallet-btn-primary" onclick="walletAction('إيداع')"><i class="fas fa-plus"></i> إيداع</button>
+            <button class="wallet-btn wallet-btn-outline" onclick="walletAction('سحب')"><i class="fas fa-minus"></i> سحب</button>
+            <button class="wallet-btn wallet-btn-outline" onclick="walletAction('تحويل')"><i class="fas fa-exchange-alt"></i> تحويل</button>
+          </div>
+        </div>
+        <div class="wallet-transactions">
+          <h4 style="font-size:16px;font-weight:700;margin-bottom:16px;">العمليات الأخيرة</h4>
+          <div id="tx-list">
+            <div class="tx-item">
+              <div class="tx-info">
+                <div class="tx-icon bg-green"><i class="fas fa-arrow-down c-green"></i></div>
+                <div><div class="tx-name">إيداع رصيد</div><div class="tx-date">اليوم، 10:30 ص</div></div>
+              </div>
+              <div class="tx-amount tx-plus">+ 500 ر.س</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-info">
+                <div class="tx-icon bg-red"><i class="fas fa-arrow-up c-red"></i></div>
+                <div><div class="tx-name">اشتراك شهري</div><div class="tx-date">أمس، 2:15 م</div></div>
+              </div>
+              <div class="tx-amount tx-minus">- 99 ر.س</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-info">
+                <div class="tx-icon bg-blue"><i class="fas fa-exchange-alt c-blue"></i></div>
+                <div><div class="tx-name">تحويل داخلي</div><div class="tx-date">3 يناير، 11:00 ص</div></div>
+              </div>
+              <div class="tx-amount tx-plus">+ 200 ر.س</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ALEXA ===== -->
+    <div id="view-alexa" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-blue"><i class="fas fa-assistive-listening-systems c-blue"></i></div>
+        <div><div class="panel-title">ربط Alexa</div><div class="panel-sub">تحكم بصوتك في جميع أدوات LAN AI</div></div>
+      </div>
+      <div class="coming-soon"><i class="fas fa-assistive-listening-systems"></i><h3>قريباً جداً</h3><p>ادمج منصة LAN AI مع Amazon Alexa للتحكم الصوتي الكامل بجميع الأدوات بالعربية.</p></div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end dashboard -->
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="./index.js"></script>
+</body>
+</html>
