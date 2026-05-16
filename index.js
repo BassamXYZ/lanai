@@ -884,29 +884,47 @@ async function generateImage() {
   if (!prompt) { showToast('أدخل وصفاً للصورة'); return; }
 
   const [width, height] = sizeStr.split('x').map(Number);
-  const fullPrompt      = style ? `${prompt}, ${style}` : prompt;
-  const seed            = Math.floor(Math.random() * 999999);
-  const url             = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+  const fullPrompt = style ? `${prompt}, ${style}` : prompt;
 
   const spinner   = document.getElementById('gen-spinner');
   const outputDiv = document.getElementById('gen-output');
+
   spinner.style.display = 'inline-block';
-  outputDiv.innerHTML   = `
+  outputDiv.innerHTML = `
     <div style="text-align:center;">
       <div class="tool-spinner" style="width:40px;height:40px;border-width:3px;"></div>
       <p style="color:var(--text-muted);margin-top:16px;font-size:14px;">
         جارٍ التوليد...<br>
-        <small style="font-size:12px;">قد يستغرق 10-20 ثانية</small>
+        <small style="font-size:12px;">قد يستغرق 15-30 ثانية</small>
       </p>
     </div>`;
 
-  const img   = new Image();
-  img.onload  = () => {
+  try {
+    const res = await fetch(
+      'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer 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',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inputs: fullPrompt,
+          parameters: { width, height }
+        })
+      }
+    );
+
+    if (!res.ok) throw new Error(await res.text());
+
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+
     spinner.style.display = 'none';
-    outputDiv.innerHTML   = `
+    outputDiv.innerHTML = `
       <img src="${url}" style="max-width:100%;border-radius:12px;border:1px solid var(--border-bright);display:block;">
       <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
-        <a href="${url}" download="lan-ai-image.jpg"
+        <a href="${url}" download="lan-ai-image.png"
           style="padding:10px 20px;background:var(--gold);color:var(--navy);border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
           <i class="fas fa-download"></i> تحميل
         </a>
@@ -915,21 +933,20 @@ async function generateImage() {
           <i class="fas fa-redo"></i> توليد آخر
         </button>
       </div>`;
+
     genImageHistory.unshift(url);
     renderGenHistory();
     showToast('تم توليد الصورة ✓');
-  };
-  img.onerror = () => {
+
+  } catch(e) {
     spinner.style.display = 'none';
-    outputDiv.innerHTML   = `
+    outputDiv.innerHTML = `
       <div style="text-align:center;color:var(--red);padding:40px;">
         <i class="fas fa-exclamation-triangle" style="font-size:32px;display:block;margin-bottom:12px;"></i>
         تعذّر التوليد — تحقق من الاتصال
       </div>`;
-  };
-  img.src = url;
+  }
 }
-
 function renderGenHistory() {
   const el = document.getElementById('gen-history');
   if (!genImageHistory.length) return;
