@@ -327,47 +327,60 @@ function deleteTask(key) {
 }
 
 // ============ CONTENT WRITER ============
-const contentSamples = [
-  `🌟 اكتشف قوة التحول الرقمي مع حلولنا المتكاملة!
+async function generateContent() {
+  const topic  = document.getElementById('content-topic').value.trim();
+  const type   = document.getElementById('content-type').value;
+  const tone   = document.getElementById('content-tone').value;
+  const length = document.getElementById('content-len').value;
+  const out    = document.getElementById('content-output');
 
-في عالم يتسارع فيه التطور التكنولوجي، أصبح من الضروري أن تواكب مؤسستك أحدث الاتجاهات في مجال الذكاء الاصطناعي وتقنيات المعلومات.
+  if (!topic) { showToast('أدخل موضوع المحتوى'); return; }
 
-نقدم لك منظومة متكاملة من الخدمات والحلول التقنية المصممة خصيصاً لتلبية احتياجات السوق العربي، مع ضمان أعلى معايير الجودة والكفاءة.
+  out.value = 'جارٍ كتابة المحتوى...';
 
-✅ حلول مخصصة لأعمالك
-✅ دعم فني على مدار الساعة  
-✅ ضمان النتائج أو استرداد المبلغ كاملاً
+  const prompt = `اكتب ${type} باللغة العربية حول: "${topic}"
+الأسلوب: ${tone}
+الطول: ${length}
+اكتب المحتوى مباشرة بدون مقدمة أو شرح.`;
 
-تواصل معنا اليوم وابدأ رحلة النجاح! 🚀`,
-  `📢 عرض لا يُفوَّت!
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', "x-goog-api-key": GEMINI_API_KEY },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.8, maxOutputTokens: 2048 }
+        })
+      }
+    );
+    
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
 
-نحن سعداء بتقديم خدماتنا المميزة التي طالما انتظرتها. مع خبرة تمتد لأكثر من 10 سنوات في المجال، نضمن لك تجربة استثنائية تتجاوز توقعاتك.
+    const text = data.candidates[0].content.parts[0].text;
+    out.value = '';
+    let i = 0;
+    const type_effect = () => {
+      if (i < text.length) {
+        out.value += text[i++];
+        out.scrollTop = out.scrollHeight;
+        setTimeout(type_effect, 8);
+      }
+    };
+    type_effect();
 
-لا تضيع الفرصة — التواصل معنا الآن يعني الحصول على استشارة مجانية شاملة.`,
-  `في الوقت الذي تتشابك فيه التحديات وتتسارع وتيرة التغيير، يبرز الذكاء الاصطناعي كحليف استراتيجي لا غنى عنه لكل مؤسسة تطمح إلى التميز والريادة.
-
-هذا المقال يستعرض أبرز الفرص والتحديات التي يطرحها الذكاء الاصطناعي في سياق الأعمال العربية، ويقدم رؤية متوازنة تجمع بين الواقعية والتفاؤل المبني على الأدلة.`
-];
-
-let contentIdx = 0;
-function generateContent() {
-  const topic = document.getElementById('content-topic').value.trim();
-  const out = document.getElementById('content-output');
-  out.value = '';
-  const text = (topic ? `📝 محتوى عن: ${topic}\n\n` : '') + contentSamples[contentIdx % contentSamples.length];
-  contentIdx++;
-  let i = 0;
-  const type = () => {
-    if (i < text.length) { out.value += text[i++]; setTimeout(type, 12); }
-  };
-  type();
+  } catch(e) {
+    out.value = 'تعذّر توليد المحتوى: ' + e.message;
+    showToast('خطأ: ' + e.message);
+  }
 }
 
 function copyContent() {
   navigator.clipboard?.writeText(document.getElementById('content-output').value);
   showToast('تم النسخ ✓');
 }
-
 // ============ QR ============
 let qrStream = null;
 let qrActive = false;
