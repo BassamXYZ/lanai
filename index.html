@@ -10,7 +10,7 @@
 </head>
 
 <body>
-<div id="landing" class="page active">
+<div id="landing" class="page">
   <div class="bg-grid"></div>
   <div class="bg-glow bg-glow-1"></div>
   <div class="bg-glow bg-glow-2"></div>
@@ -544,9 +544,44 @@
     <div id="view-grammar" class="tool-view">
       <div class="panel-header">
         <div class="panel-icon bg-green"><i class="fas fa-spell-check c-green"></i></div>
-        <div><div class="panel-title">التصحيح اللغوي</div><div class="panel-sub">تصحيح النحو والإملاء</div></div>
+        <div>
+          <div class="panel-title">التصحيح اللغوي</div>
+          <div class="panel-sub">تصحيح النحو والإملاء — LanguageTool</div>
+        </div>
       </div>
-      <div class="coming-soon"><i class="fas fa-spell-check"></i><h3>قريباً جداً</h3><p>محرك تصحيح لغوي متقدم للعربية يتعامل مع اللهجات ويصحح الأسلوب — قريباً.</p></div>
+      <div class="grammar-grid">
+        <!-- INPUT -->
+        <div class="grammar-panel">
+          <div style="display:flex; gap:10px; margin-bottom:12px;">
+            <select id="gr-lang" class="lang-select" style="flex:1;">
+              <option value="ar">العربية</option>
+              <option value="en-US">الإنجليزية</option>
+              <option value="fr">الفرنسية</option>
+              <option value="de-DE">الألمانية</option>
+            </select>
+            <button class="btn-gold-small" onclick="doGrammarCheck()">
+              <i class="fas fa-check-circle"></i> تصحيح
+              <span id="gr-spinner" class="tool-spinner" style="display:none;"></span>
+            </button>
+          </div>
+          <textarea id="gr-input" class="tool-textarea"
+            placeholder="اكتب أو الصق النص هنا للتصحيح..."
+            style="min-height:280px;"></textarea>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button class="btn-ghost-small" onclick="document.getElementById('gr-input').value=''">
+              <i class="fas fa-trash"></i> مسح
+            </button>
+            <button class="btn-ghost-small" onclick="copyText('gr-input')">
+              <i class="fas fa-copy"></i> نسخ
+            </button>
+          </div>
+        </div>
+        <!-- RESULTS -->
+        <div class="grammar-panel">
+          <div id="gr-summary" class="gr-summary-box"></div>
+          <div id="gr-results" style="max-height:380px; overflow-y:auto;"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ===== TASKS ===== -->
@@ -670,12 +705,46 @@
 
     <!-- ===== EBOOKS ===== -->
     <div id="view-ebooks" class="tool-view">
-      <div class="panel-header">
-        <div class="panel-icon bg-orange"><i class="fas fa-book-reader c-orange"></i></div>
-        <div><div class="panel-title">قراءة الكتب الإلكترونية</div><div class="panel-sub">اقرأ وحلّل كتبك بذكاء</div></div>
-      </div>
-      <div class="coming-soon"><i class="fas fa-book-reader"></i><h3>قريباً جداً</h3><p>قارئ كتب ذكي مع ملخصات تلقائية ونقاط رئيسية وترجمة فورية — قيد التطوير.</p></div>
+  <div class="panel-header">
+    <div class="panel-icon bg-orange">
+      <i class="fas fa-book-reader c-orange"></i>
     </div>
+    <div>
+      <div class="panel-title">قراءة الكتب الإلكترونية</div>
+      <div class="panel-sub">عرض ملفات PDF مباشرة في المتصفح</div>
+    </div>
+  </div>
+  <div class="pdf-toolbar">
+    <label class="btn-gold-upload">
+      <i class="fas fa-folder-open"></i> فتح PDF
+      <input type="file" id="pdf-file-input" accept=".pdf" style="display:none;" onchange="loadPDF(event)">
+    </label>
+    <button class="btn-ghost-small" id="pdf-prev" onclick="changePDFPage(-1)" disabled>
+      <i class="fas fa-chevron-right"></i> السابق
+    </button>
+    <span id="pdf-page-info" class="pdf-page-info">—</span>
+    <button class="btn-ghost-small" id="pdf-next" onclick="changePDFPage(1)" disabled>
+      التالي <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="btn-ghost-small" id="pdf-zoom-in" onclick="changePDFZoom(0.2)">
+      <i class="fas fa-search-plus"></i>
+    </button>
+    <button class="btn-ghost-small" id="pdf-zoom-out" onclick="changePDFZoom(-0.2)">
+      <i class="fas fa-search-minus"></i>
+    </button>
+    <button class="btn-ghost-small" id="pdf-speak-btn" onclick="readCurrentPDFPage()" style="display:none;">
+      <i class="fas fa-volume-up"></i> قراءة الصفحة
+    </button>
+  </div>
+  <div id="pdf-empty" class="pdf-empty-state">
+    <i class="fas fa-file-pdf"></i>
+    <p>اختر ملف PDF للبدء في القراءة</p>
+  </div>
+  <div id="pdf-viewer" style="display:none; background:#1a1a2e; border-radius:12px; padding:20px; text-align:center; overflow:auto;">
+    <canvas id="pdf-canvas" style="max-width:100%; height:auto; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5);"></canvas>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+</div>
 
     <!-- ===== MEDIA GEN ===== -->
     <div id="view-media-gen" class="tool-view">
@@ -769,9 +838,77 @@
   </div><!-- end main-content -->
 </div><!-- end dashboard -->
 
+<div id="auth-page" class="page active">
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <span style="font-size:40px;display:block;text-align:center;">🕊️</span>
+        <div class="logo-text" style="text-align:center;font-size:26px;font-weight:900;background:linear-gradient(135deg,#FFD700,#D4A017);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">LAN AI</div>
+        <p style="text-align:center;font-size:13px;color:var(--text-muted);margin-top:4px;">منصة الذكاء الاصطناعي العربية</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+        <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">حساب جديد</button>
+      </div>
+
+      <div id="auth-error" class="auth-msg auth-msg-error"></div>
+      <div id="auth-success" class="auth-msg auth-msg-success"></div>
+
+      <div id="form-login">
+        <div class="auth-field">
+          <label>البريد الإلكتروني</label>
+          <input class="auth-input" id="login-email" type="email" placeholder="example@email.com">
+        </div>
+        <div class="auth-field">
+          <label>كلمة المرور</label>
+          <input class="auth-input" id="login-pass" type="password" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div style="text-align:left;margin-bottom:14px;">
+          <span class="auth-link" onclick="doForgotPass()">نسيت كلمة المرور؟</span>
+        </div>
+        <button class="auth-btn" id="login-btn" onclick="doLogin()">
+          <i class="fas fa-sign-in-alt"></i> دخول
+        </button>
+        <div class="auth-divider">أو</div>
+        <button class="auth-google-btn" onclick="doGoogleLogin()">
+          <i class="fab fa-google" style="color:#DB4437;"></i> الدخول بحساب Google
+        </button>
+      </div>
+
+      <div id="form-register" style="display:none;">
+        <div class="auth-field">
+          <label>الاسم الكامل</label>
+          <input class="auth-input" id="reg-name" type="text" placeholder="محمد الأحمد">
+        </div>
+        <div class="auth-field">
+          <label>البريد الإلكتروني</label>
+          <input class="auth-input" id="reg-email" type="email" placeholder="example@email.com">
+        </div>
+        <div class="auth-field">
+          <label>كلمة المرور (8 أحرف على الأقل)</label>
+          <input class="auth-input" id="reg-pass" type="password" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter')doRegister()">
+        </div>
+        <button class="auth-btn" id="register-btn" onclick="doRegister()">
+          <i class="fas fa-user-plus"></i> إنشاء الحساب
+        </button>
+        <div class="auth-divider">أو</div>
+        <button class="auth-google-btn" onclick="doGoogleLogin()">
+          <i class="fab fa-google" style="color:#DB4437;"></i> التسجيل بحساب Google
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="./index.js"></script>
 </body>
 </html>

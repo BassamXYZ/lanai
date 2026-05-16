@@ -13,7 +13,8 @@
   // تهيئة Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-  
+  const auth = firebase.auth();
+  let currentUser = null;
   
   
 // ============ NAVIGATION ============
@@ -492,9 +493,9 @@ function showToast(msg) {
 }
 
 // Load jsQR for QR scanning
-const jsQRScript = document.createElement('script');
-jsQRScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
-document.head.appendChild(jsQRScript);
+const jsQR = document.createElement('script');
+jsQR.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+document.head.appendChild(jsQR);
 
 // ============ EXCHANGE RATES ============
 async function fetchExchangeRates() {
@@ -528,4 +529,567 @@ async function fetchExchangeRates() {
   } catch (error) {
     container.innerHTML = '<div style="color: var(--red); grid-column: 1 / -1;">حدث خطأ أثناء الاتصال بالخادم. تأكد من اتصالك بالإنترنت.</div>';
   }
+}
+
+
+// ═══════════════════════════════════════════════
+// AUTH — تسجيل الدخول
+// ═══════════════════════════════════════════════
+
+auth.onAuthStateChanged(user => {
+  currentUser = user;
+  if (user) {
+    // مستخدم مسجّل — أظهر Dashboard
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('dashboard').classList.add('active');
+    // تحديث اسم المستخدم في Sidebar
+    const nameEl = document.querySelector('.user-name');
+    const avatarEl = document.querySelector('.user-avatar');
+    if (nameEl) nameEl.textContent = user.displayName || user.email.split('@')[0];
+    if (avatarEl) avatarEl.textContent = (user.displayName || user.email)[0].toUpperCase();
+  } else {
+    // غير مسجّل — أظهر صفحة Auth
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('auth-page').classList.add('active');
+  }
+});
+
+function switchAuthTab(tab) {
+  document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active',    tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  hideAuthMsg();
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('auth-success').style.display = 'none';
+}
+function showAuthSuccess(msg) {
+  const el = document.getElementById('auth-success');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('auth-error').style.display = 'none';
+}
+function hideAuthMsg() {
+  document.getElementById('auth-error').style.display   = 'none';
+  document.getElementById('auth-success').style.display = 'none';
+}
+
+function setAuthBtn(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = loading;
+  const labels = {
+    'login-btn':    loading ? 'جارٍ الدخول...'   : '<i class="fas fa-sign-in-alt"></i> دخول',
+    'register-btn': loading ? 'جارٍ الإنشاء...' : '<i class="fas fa-user-plus"></i> إنشاء الحساب'
+  };
+  btn.innerHTML = labels[btnId];
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if (!email || !pass) { showAuthError('أدخل البريد وكلمة المرور'); return; }
+  setAuthBtn('login-btn', true);
+  hideAuthMsg();
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    // onAuthStateChanged سيتولى الباقي تلقائياً
+  } catch(e) {
+    setAuthBtn('login-btn', false);
+    const msgs = {
+      'auth/user-not-found':   'هذا البريد غير مسجّل',
+      'auth/wrong-password':   'كلمة المرور غير صحيحة',
+      'auth/invalid-email':    'صيغة البريد غير صحيحة',
+      'auth/too-many-requests':'تم تعطيل الحساب مؤقتاً، حاول لاحقاً',
+      'auth/invalid-credential': 'البريد أو كلمة المرور غير صحيحة'
+    };
+    showAuthError(msgs[e.code] || e.message);
+  }
+}
+
+async function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  if (!name || !email || !pass) { showAuthError('أكمل جميع الحقول'); return; }
+  if (pass.length < 8)         { showAuthError('كلمة المرور 8 أحرف على الأقل'); return; }
+  setAuthBtn('register-btn', true);
+  hideAuthMsg();
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    await cred.user.updateProfile({ displayName: name });
+    showAuthSuccess('تم إنشاء الحساب ✓');
+  } catch(e) {
+    setAuthBtn('register-btn', false);
+    const msgs = {
+      'auth/email-already-in-use': 'هذا البريد مسجّل، سجّل الدخول',
+      'auth/invalid-email':        'صيغة البريد غير صحيحة',
+      'auth/weak-password':        'كلمة المرور ضعيفة جداً'
+    };
+    showAuthError(msgs[e.code] || e.message);
+  }
+}
+
+async function doGoogleLogin() {
+  hideAuthMsg();
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    await auth.signInWithPopup(provider);
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('dashboard').classList.add('active');
+  } catch(e) {
+    if (e.code !== 'auth/popup-closed-by-user')
+      showAuthError('فشل Google: ' + e.message);
+  }
+}
+
+async function doForgotPass() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { showAuthError('أدخل بريدك الإلكتروني أولاً'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showAuthSuccess('تم إرسال رابط إعادة التعيين إلى بريدك ✓');
+  } catch(e) {
+    showAuthError('تعذّر الإرسال: ' + e.message);
+  }
+}
+
+// تسجيل الخروج — استبدل goLanding الموجودة
+function goLanding() {
+  if (!currentUser) return;
+  if (!confirm('هل تريد تسجيل الخروج؟')) return;
+  auth.signOut();
+  // onAuthStateChanged سيتولى إظهار auth-page تلقائياً
+}
+
+// دالة مساعدة للنسخ
+function copyText(elementId) {
+  const el = document.getElementById(elementId);
+  const txt = el.value || el.textContent;
+  navigator.clipboard.writeText(txt)
+    .then(() => showToast('تم النسخ ✓'))
+    .catch(() => showToast('تعذّر النسخ'));
+}
+
+// ═══════════════════════════════════════════════
+// GRAMMAR CHECK — LanguageTool API
+// لا يحتاج API Key — مجاني تماماً
+// ═══════════════════════════════════════════════
+async function doGrammarCheck() {
+  const text = document.getElementById('gr-input').value.trim();
+  const lang = document.getElementById('gr-lang').value;
+  if (!text) { showToast('أدخل نصاً للتصحيح'); return; }
+
+  const spinner = document.getElementById('gr-spinner');
+  const summary = document.getElementById('gr-summary');
+  const results = document.getElementById('gr-results');
+  spinner.style.display = 'inline-block';
+  summary.innerHTML = '';
+  results.innerHTML  = '<p style="color:var(--text-muted);font-size:13px;padding:12px;">جارٍ الفحص...</p>';
+
+  try {
+    const res  = await fetch('https://api.languagetool.org/v2/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `text=${encodeURIComponent(text)}&language=${lang}`
+    });
+    const data = await res.json();
+    spinner.style.display = 'none';
+
+    const matches = data.matches || [];
+    if (matches.length === 0) {
+      summary.innerHTML = '<span style="color:var(--green);"><i class="fas fa-check-circle"></i> لا أخطاء — النص سليم!</span>';
+      summary.style.background = 'rgba(46,204,113,.08)';
+      results.innerHTML = '';
+      return;
+    }
+
+    summary.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:var(--red);"></i> &nbsp;${matches.length} ملاحظة`;
+    summary.style.background = 'rgba(231,76,60,.08)';
+
+    results.innerHTML = matches.map((m, i) => {
+      const wrong = text.substring(m.offset, m.offset + m.length);
+      const suggestions = (m.replacements || []).slice(0, 4);
+      return `
+        <div class="gr-error-card">
+          <span class="gr-error-tag">ملاحظة ${i + 1}</span>
+          <div style="font-size:14px;font-weight:600;margin-bottom:6px;">${m.message}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">
+            الكلمة: <span style="color:var(--red);">"${wrong}"</span>
+          </div>
+          ${suggestions.length ? `
+            <div>اقتراحات:
+              ${suggestions.map(s =>
+                `<button class="gr-suggestion"
+                  onclick="applyGrammarFix('${wrong.replace(/'/g,"\\'")}','${s.value.replace(/'/g,"\\'")}')">
+                  ${s.value}
+                </button>`
+              ).join('')}
+            </div>` : ''}
+        </div>`;
+    }).join('');
+
+  } catch(e) {
+    spinner.style.display = 'none';
+    results.innerHTML = '<p style="color:var(--red);font-size:13px;">تعذّر الاتصال بـ LanguageTool — تحقق من الإنترنت</p>';
+  }
+}
+
+function applyGrammarFix(wrong, correct) {
+  const ta = document.getElementById('gr-input');
+  ta.value = ta.value.replace(wrong, correct);
+  showToast('تم التطبيق ✓');
+}
+
+// ═══════════════════════════════════════════════
+// PDF READER — pdf.js
+// لا يحتاج API Key — مكتبة مفتوحة المصدر
+// ═══════════════════════════════════════════════ 
+
+(function() {
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+})();
+
+// Toast notification helper
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.remove('hidden');
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => {
+    toast.classList.add('hidden');
+  }, 2500);
+}
+
+// PDF state
+let pdfDoc      = null;
+let pdfPageNum  = 1;
+let pdfScale    = 1.5;
+let pdfPageText = '';
+
+// Load PDF from file input
+async function loadPDF(event) {
+  const file = event.target.files[0];
+  if (!file || file.type !== 'application/pdf') {
+    showToast('يرجى اختيار ملف PDF فقط');
+    return;
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  if (!window.pdfjsLib) {
+    showToast('مكتبة PDF.js غير محملة');
+    return;
+  }
+
+  try {
+    pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
+    pdfPageNum = 1;
+
+    document.getElementById('pdf-empty').style.display  = 'none';
+    document.getElementById('pdf-viewer').style.display = 'block';
+    document.getElementById('pdf-prev').disabled        = false;
+    document.getElementById('pdf-next').disabled        = false;
+    document.getElementById('pdf-speak-btn').style.display = 'inline-flex';
+
+    await renderPDFPage();
+    showToast(`تم فتح ${pdfDoc.numPages} صفحة ✓`);
+  } catch (e) {
+    console.error(e);
+    showToast('تعذّر فتح الملف — تأكد أنه PDF سليم');
+  }
+}
+
+// Render current page
+async function renderPDFPage() {
+  if (!pdfDoc) return;
+  try {
+    const page     = await pdfDoc.getPage(pdfPageNum);
+    const viewport = page.getViewport({ scale: pdfScale });
+    const canvas   = document.getElementById('pdf-canvas');
+    const ctx      = canvas.getContext('2d');
+
+    canvas.height  = viewport.height;
+    canvas.width   = viewport.width;
+
+    // Maintain max width
+    canvas.style.width = '100%';
+    canvas.style.height = 'auto';
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    // Update page info
+    document.getElementById('pdf-page-info').textContent =
+      `صفحة ${pdfPageNum} من ${pdfDoc.numPages}`;
+
+    // Extract text for speech
+    const textContent = await page.getTextContent();
+    pdfPageText = textContent.items.map(item => item.str).join(' ');
+  } catch (e) {
+    console.error('Render error:', e);
+    showToast('حدث خطأ أثناء عرض الصفحة');
+  }
+}
+
+// Navigate pages
+function changePDFPage(direction) {
+  if (!pdfDoc) return;
+  const newPage = pdfPageNum + direction;
+  if (newPage < 1 || newPage > pdfDoc.numPages) return;
+  pdfPageNum = newPage;
+  renderPDFPage();
+}
+
+// Zoom in/out
+function changePDFZoom(delta) {
+  pdfScale = Math.max(0.5, Math.min(3, pdfScale + delta));
+  renderPDFPage();
+}
+
+// Read page aloud
+function readCurrentPDFPage() {
+  if (!pdfPageText || pdfPageText.trim() === '') {
+    showToast('لا يوجد نص مقروء في هذه الصفحة');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(pdfPageText);
+  utterance.lang  = 'ar-SA';
+  utterance.rate  = 0.9;
+  utterance.volume = 1;
+  window.speechSynthesis.speak(utterance);
+  showToast('جارٍ قراءة الصفحة...');
+}
+
+// ═══════════════════════════════════════════════
+// IMAGE GENERATOR — Pollinations.ai
+// لا يحتاج API Key — مجاني بلا حدود
+// ═══════════════════════════════════════════════
+const genImageHistory = [];
+
+async function generateImage() {
+  const prompt  = document.getElementById('gen-prompt').value.trim();
+  const style   = document.getElementById('gen-style').value;
+  const sizeStr = document.getElementById('gen-size').value;
+
+  if (!prompt) { showToast('أدخل وصفاً للصورة'); return; }
+
+  const [width, height] = sizeStr.split('x').map(Number);
+  const fullPrompt      = style ? `${prompt}, ${style}` : prompt;
+  const seed            = Math.floor(Math.random() * 999999);
+  const url             = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+
+  const spinner   = document.getElementById('gen-spinner');
+  const outputDiv = document.getElementById('gen-output');
+  spinner.style.display = 'inline-block';
+  outputDiv.innerHTML   = `
+    <div style="text-align:center;">
+      <div class="tool-spinner" style="width:40px;height:40px;border-width:3px;"></div>
+      <p style="color:var(--text-muted);margin-top:16px;font-size:14px;">
+        جارٍ التوليد...<br>
+        <small style="font-size:12px;">قد يستغرق 10-20 ثانية</small>
+      </p>
+    </div>`;
+
+  const img   = new Image();
+  img.onload  = () => {
+    spinner.style.display = 'none';
+    outputDiv.innerHTML   = `
+      <img src="${url}" style="max-width:100%;border-radius:12px;border:1px solid var(--border-bright);display:block;">
+      <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
+        <a href="${url}" download="lan-ai-image.jpg"
+          style="padding:10px 20px;background:var(--gold);color:var(--navy);border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+          <i class="fas fa-download"></i> تحميل
+        </a>
+        <button onclick="generateImage()"
+          style="padding:10px 20px;background:transparent;border:1px solid var(--border-bright);color:var(--text);border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;">
+          <i class="fas fa-redo"></i> توليد آخر
+        </button>
+      </div>`;
+    genImageHistory.unshift(url);
+    renderGenHistory();
+    showToast('تم توليد الصورة ✓');
+  };
+  img.onerror = () => {
+    spinner.style.display = 'none';
+    outputDiv.innerHTML   = `
+      <div style="text-align:center;color:var(--red);padding:40px;">
+        <i class="fas fa-exclamation-triangle" style="font-size:32px;display:block;margin-bottom:12px;"></i>
+        تعذّر التوليد — تحقق من الاتصال
+      </div>`;
+  };
+  img.src = url;
+}
+
+function renderGenHistory() {
+  const el = document.getElementById('gen-history');
+  if (!genImageHistory.length) return;
+  el.innerHTML = '<p style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">سابقة:</p>' +
+    genImageHistory.slice(0, 5).map(u =>
+      `<img src="${u}" class="gen-history-thumb"
+        onclick="document.getElementById('gen-output').querySelector('img').src='${u}'">`
+    ).join('');
+}
+
+// ═══════════════════════════════════════════════
+// TOURISM — OpenStreetMap Nominatim
+// لا يحتاج API Key — مجاني بالكامل
+// ═══════════════════════════════════════════════
+async function searchPlaces() {
+  const query   = document.getElementById('tourism-query').value.trim();
+  const type    = document.getElementById('tourism-type').value;
+  const spinner = document.getElementById('tourism-spinner');
+  const results = document.getElementById('tourism-results');
+  const mapDiv  = document.getElementById('tourism-map');
+
+  if (!query) { showToast('أدخل مكاناً للبحث'); return; }
+
+  const searchQuery = type ? `${type} ${query}` : query;
+  spinner.style.display = 'inline-block';
+  results.innerHTML     = '<p style="color:var(--text-muted);font-size:13px;grid-column:1/-1;">جارٍ البحث...</p>';
+  mapDiv.style.display  = 'none';
+
+  try {
+    const res  = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=9&addressdetails=1`,
+      { headers: { 'Accept-Language': 'ar' } }
+    );
+    const data = await res.json();
+    spinner.style.display = 'none';
+
+    if (!data.length) {
+      results.innerHTML = '<p style="color:var(--text-muted);font-size:13px;grid-column:1/-1;">لا نتائج — جرّب بحثاً مختلفاً</p>';
+      return;
+    }
+
+    const typeEmojis = {
+      restaurant:'🍽️', hotel:'🏨', museum:'🏛️',
+      mosque:'🕌', hospital:'🏥', cafe:'☕', park:'🌳'
+    };
+    const emoji = typeEmojis[type] || '📍';
+
+    results.innerHTML = data.map(place => {
+      const nameParts = place.display_name.split(',').slice(0, 2).join('،');
+      return `
+        <div class="place-card" onclick="showPlaceOnMap(${place.lat}, ${place.lon})">
+          <div class="place-emoji">${emoji}</div>
+          <div class="place-info">
+            <div class="place-name">${nameParts.substring(0, 50)}${nameParts.length > 50 ? '...' : ''}</div>
+            <div class="place-type">${place.type || type || 'مكان'}</div>
+            <a href="https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lon}&zoom=17"
+              target="_blank" class="place-map-link" onclick="event.stopPropagation()">
+              <i class="fas fa-map-marker-alt"></i> فتح الخريطة
+            </a>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Show first result on map
+    showPlaceOnMap(data[0].lat, data[0].lon);
+
+  } catch(e) {
+    spinner.style.display = 'none';
+    results.innerHTML = '<p style="color:var(--red);font-size:13px;grid-column:1/-1;">تعذّر البحث — تحقق من الاتصال</p>';
+  }
+}
+
+function showPlaceOnMap(lat, lon) {
+  const mapDiv   = document.getElementById('tourism-map');
+  const mapFrame = document.getElementById('tourism-map-frame');
+  mapDiv.style.display = 'block';
+  const bbox  = `${lon - 0.015},${lat - 0.015},${+lon + 0.015},${+lat + 0.015}`;
+  mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
+}
+
+// ═══════════════════════════════════════════════
+// VOICE TRANSLATOR — STT + MyMemory + TTS
+// لا يحتاج API Key — كله مجاني
+// ═══════════════════════════════════════════════
+let vtRecognition = null;
+let vtIsListening = false;
+
+function toggleVoiceTranslator() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    showToast('المتصفح لا يدعم التعرف على الصوت — استخدم Chrome');
+    return;
+  }
+  vtIsListening ? stopVoiceTranslator() : startVoiceTranslator();
+}
+
+function startVoiceTranslator() {
+  const SR       = window.SpeechRecognition || window.webkitSpeechRecognition;
+  vtRecognition  = new SR();
+  vtRecognition.lang        = document.getElementById('vt-from-lang').value;
+  vtRecognition.continuous  = false;
+  vtRecognition.interimResults = false;
+
+  vtRecognition.onstart = () => {
+    vtIsListening = true;
+    document.getElementById('vt-rec-btn').classList.add('recording');
+    document.getElementById('vt-rec-icon').className = 'fas fa-stop';
+    document.getElementById('vt-status').textContent  = '● يستمع...';
+    document.getElementById('vt-status').style.color  = 'var(--red)';
+  };
+
+  vtRecognition.onresult = async (event) => {
+    const spokenText = event.results[0][0].transcript;
+    document.getElementById('vt-original-text').textContent = spokenText;
+    document.getElementById('vt-original-text').style.color = 'var(--text)';
+    document.getElementById('vt-status').textContent = 'جارٍ الترجمة...';
+
+    // Translate using MyMemory
+    const fromLang = document.getElementById('vt-from-lang').value.split('-')[0];
+    const toLang   = document.getElementById('vt-to-lang').value;
+    const translated = await translateWithMyMemory(spokenText, fromLang, toLang);
+
+    document.getElementById('vt-translated-text').value = translated;
+    document.getElementById('vt-status').textContent    = '✓ تمت الترجمة';
+    document.getElementById('vt-status').style.color    = 'var(--green)';
+    stopVoiceTranslator();
+  };
+
+  vtRecognition.onerror = (e) => {
+    showToast('خطأ في الميكروفون: ' + e.error);
+    stopVoiceTranslator();
+  };
+
+  vtRecognition.onend = () => { if (vtIsListening) stopVoiceTranslator(); };
+  vtRecognition.start();
+}
+
+function stopVoiceTranslator() {
+  vtIsListening = false;
+  if (vtRecognition) vtRecognition.stop();
+  document.getElementById('vt-rec-btn').classList.remove('recording');
+  document.getElementById('vt-rec-icon').className = 'fas fa-microphone';
+}
+
+async function translateWithMyMemory(text, from, to) {
+  try {
+    const res  = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
+    const data = await res.json();
+    return data.responseStatus === 200 ? data.responseData.translatedText : text;
+  } catch(e) {
+    return '[تعذّر الترجمة]';
+  }
+}
+
+function speakTranslation() {
+  const text = document.getElementById('vt-translated-text').value.trim();
+  const lang = document.getElementById('vt-to-lang').value;
+  if (!text) { showToast('لا يوجد نص للقراءة'); return; }
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = lang === 'ar' ? 'ar-SA' : lang;
+  utt.rate   = 0.9;
+  window.speechSynthesis.speak(utt);
 }
