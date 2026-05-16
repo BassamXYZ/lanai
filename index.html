@@ -664,9 +664,78 @@
     <div id="view-research" class="tool-view">
       <div class="panel-header">
         <div class="panel-icon bg-blue"><i class="fas fa-microscope c-blue"></i></div>
-        <div><div class="panel-title">كتابة الأبحاث</div><div class="panel-sub">أبحاث علمية موثّقة</div></div>
+        <div>
+          <div class="panel-title">كتابة الأبحاث</div>
+          <div class="panel-sub">أبحاث علمية احترافية بـ Gemini Flash</div>
+        </div>
       </div>
-      <div class="coming-soon"><i class="fas fa-microscope"></i><h3>قريباً جداً</h3><p>محرك الأبحاث الذكي سيساعدك في كتابة أبحاث علمية موثّقة بمصادر موثوقة ودقيقة.</p></div>
+
+      <div style="display:grid;grid-template-columns:300px 1fr;gap:20px;">
+
+        <!-- الإعدادات -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;">
+
+          <label class="field-label">موضوع البحث</label>
+          <input id="research-topic" class="tool-input"
+            placeholder="مثال: تأثير الذكاء الاصطناعي على التعليم"
+            style="width:100%;margin-bottom:14px;">
+
+          <label class="field-label">نوع البحث</label>
+          <select id="research-type" class="writer-select">
+            <option value="academic">بحث أكاديمي</option>
+            <option value="summary">ملخص علمي</option>
+            <option value="literature">مراجعة أدبية</option>
+            <option value="case_study">دراسة حالة</option>
+            <option value="report">تقرير تقني</option>
+          </select>
+
+          <label class="field-label">اللغة</label>
+          <select id="research-lang" class="writer-select">
+            <option value="ar">العربية</option>
+            <option value="en">الإنجليزية</option>
+          </select>
+
+          <label class="field-label">الطول</label>
+          <select id="research-length" class="writer-select">
+            <option value="short">قصير (500 كلمة)</option>
+            <option value="medium">متوسط (1000 كلمة)</option>
+            <option value="long">طويل (2000 كلمة)</option>
+          </select>
+
+          <label class="field-label">تفاصيل إضافية (اختياري)</label>
+          <textarea id="research-details" class="tool-textarea"
+            placeholder="أي تفاصيل أو نقاط تريد التركيز عليها..."
+            style="min-height:80px;margin-bottom:14px;"></textarea>
+
+          <button class="btn-gold" onclick="generateResearch()"
+            style="width:100%;padding:12px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <i class="fas fa-microscope"></i> توليد البحث
+            <span id="research-spinner" class="tool-spinner" style="display:none;"></span>
+          </button>
+
+        </div>
+
+        <!-- النتيجة -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;">
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <span style="font-size:15px;font-weight:700;">البحث المُنشأ</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-ghost-small" onclick="copyText('research-output')">
+                <i class="fas fa-copy"></i> نسخ
+              </button>
+              <button class="btn-ghost-small" onclick="downloadResearch()">
+                <i class="fas fa-download"></i> تحميل
+              </button>
+            </div>
+          </div>
+
+          <textarea id="research-output"
+            style="flex:1;width:100%;background:transparent;border:none;color:var(--text);font-family:'Cairo',sans-serif;font-size:14px;line-height:2;resize:none;min-height:500px;outline:none;direction:rtl;"
+            placeholder="سيظهر البحث هنا بعد الضغط على توليد..."></textarea>
+
+        </div>
+      </div>
     </div>
 
     <!-- ===== QR ===== -->

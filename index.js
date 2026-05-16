@@ -988,6 +988,117 @@ function renderGenHistory() {
 }
 
 // ═══════════════════════════════════════════════
+// RESEARCH — Gemini Flash
+// ═══════════════════════════════════════════════
+async function generateResearch() {
+  const topic   = document.getElementById('research-topic').value.trim();
+  const type    = document.getElementById('research-type').value;
+  const lang    = document.getElementById('research-lang').value;
+  const length  = document.getElementById('research-length').value;
+  const details = document.getElementById('research-details').value.trim();
+  const GEMINI_API_KEY = 'AIzaSyDB2mdotxqWcPp5e099TCrd6m8dt2Cylp0';
+
+  if (!topic) { showToast('أدخل موضوع البحث'); return; }
+
+  const spinner = document.getElementById('research-spinner');
+  const output  = document.getElementById('research-output');
+  spinner.style.display = 'inline-block';
+  output.value = 'جارٍ كتابة البحث...';
+
+  const typeLabels = {
+    academic:    'بحث أكاديمي علمي',
+    summary:     'ملخص علمي',
+    literature:  'مراجعة أدبية',
+    case_study:  'دراسة حالة',
+    report:      'تقرير تقني'
+  };
+
+  const lengthLabels = {
+    short:  '500 كلمة',
+    medium: '1000 كلمة',
+    long:   '2000 كلمة'
+  };
+
+  const langInstruction = lang === 'ar'
+    ? 'اكتب البحث كاملاً باللغة العربية الفصحى.'
+    : 'Write the entire research in English.';
+
+  const prompt = `${langInstruction}
+
+اكتب ${typeLabels[type]} متكامل حول الموضوع التالي: "${topic}"
+
+الطول المطلوب: ${lengthLabels[length]}
+${details ? `تفاصيل إضافية: ${details}` : ''}
+
+يجب أن يحتوي البحث على:
+1. مقدمة شاملة
+2. الجسم الرئيسي مع عناوين فرعية واضحة
+3. تحليل ومناقشة
+4. خاتمة وتوصيات
+5. قائمة مراجع (بصيغة APA)
+
+اكتب البحث بأسلوب أكاديمي احترافي مع التنسيق الصحيح.`;
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', "x-goog-api-key": GEMINI_API_KEY },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 4096
+          }
+        })
+      }
+    );
+
+    const data = await resp.json();
+
+    if (data.error) throw new Error(data.error.message);
+
+    const text = data.candidates[0].content.parts[0].text;
+    spinner.style.display = 'none';
+
+    // طباعة تدريجية
+    output.value = '';
+    let i = 0;
+    const type_effect = () => {
+      if (i < text.length) {
+        output.value += text[i++];
+        output.scrollTop = output.scrollHeight;
+        setTimeout(type_effect, 5);
+      }
+    };
+    type_effect();
+
+  } catch(e) {
+    spinner.style.display = 'none';
+    output.value = 'تعذّر توليد البحث: ' + e.message;
+    showToast('خطأ: ' + e.message);
+  }
+}
+
+function downloadResearch() {
+  const text  = document.getElementById('research-output').value.trim();
+  const topic = document.getElementById('research-topic').value.trim() || 'بحث';
+  if (!text || text === 'سيظهر البحث هنا بعد الضغط على توليد...') {
+    showToast('لا يوجد بحث للتحميل');
+    return;
+  }
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `${topic}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('تم التحميل ✓');
+}
+
+// ═══════════════════════════════════════════════
 // TOURISM — OpenStreetMap Nominatim
 // لا يحتاج API Key — مجاني بالكامل
 // ═══════════════════════════════════════════════
