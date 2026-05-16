@@ -433,12 +433,14 @@ function readQRFile(event) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      if (window.jsQR) {
-        const code = jsQR(imageData.data, imageData.width, imageData.height);
+      const fn = window.jsQR;
+      if (typeof fn === 'function') {
+        const code = fn(imageData.data, imageData.width, imageData.height);
         document.getElementById('qr-output').textContent = code ? code.data : 'لم يتم العثور على كود QR في الصورة.';
         document.getElementById('qr-output').style.color = code ? 'var(--green)' : 'var(--red)';
       } else {
-        document.getElementById('qr-output').textContent = 'مكتبة jsQR غير محملة. يتطلب اتصالاً بالإنترنت.';
+        document.getElementById('qr-output').textContent = 'المكتبة لم تكتمل بعد — انتظر ثانية وحاول مجدداً.';
+        document.getElementById('qr-output').style.color = 'var(--red)';
       }
     };
     img.src = e.target.result;
@@ -488,10 +490,6 @@ function showToast(msg) {
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2500);
 }
-
-const jsQRScript = document.createElement('script');
-jsQRScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
-document.head.appendChild(jsQRScript);
 
 // ============ EXCHANGE RATES ============
 async function fetchExchangeRates() {
