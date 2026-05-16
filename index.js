@@ -869,7 +869,6 @@ function readCurrentPDFPage() {
 // لا يحتاج API Key — مجاني بلا حدود
 // ═══════════════════════════════════════════════
 const genImageHistory = [];
-
 async function generateImage() {
   const prompt  = document.getElementById('gen-prompt').value.trim();
   const style   = document.getElementById('gen-style').value;
@@ -878,9 +877,8 @@ async function generateImage() {
   if (!prompt) { showToast('أدخل وصفاً للصورة'); return; }
 
   const [width, height] = sizeStr.split('x').map(Number);
-  const fullPrompt = style ? `${prompt}, ${style}` : prompt;
-  const seed = Math.floor(Math.random() * 999999);
-  const url  = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=flux&enhance=false`;
+  const HF_TOKEN = 'ضع_مفتاحك_هنا';
+  const API_URL  = 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell';
 
   const spinner   = document.getElementById('gen-spinner');
   const outputDiv = document.getElementById('gen-output');
@@ -889,14 +887,10 @@ async function generateImage() {
   outputDiv.innerHTML = `
     <div id="gen-loading" style="text-align:center;padding:40px;">
       <div class="tool-spinner" style="width:40px;height:40px;border-width:3px;margin:0 auto;"></div>
-      <p style="color:var(--text-muted);margin-top:16px;font-size:14px;">جارٍ التوليد...<br><small>قد يستغرق 30-60 ثانية</small></p>
+      <p id="gen-status-text" style="color:var(--text-muted);margin-top:16px;font-size:14px;">جارٍ التحضير...<br><small>قد يستغرق 20-60 ثانية</small></p>
     </div>
     <img id="gen-result-img" style="max-width:100%;border-radius:12px;border:1px solid var(--border-bright);display:none;">
     <div id="gen-dl-btn" style="display:none;gap:10px;margin-top:14px;justify-content:center;">
-      <a id="gen-open-link" href="#" target="_blank"
-        style="padding:10px 20px;background:var(--gold);color:var(--navy);border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-        <i class="fas fa-external-link-alt"></i> فتح الصورة
-      </a>
       <button onclick="generateImage()"
         style="padding:10px 20px;background:transparent;border:1px solid var(--border-bright);color:var(--text);border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;">
         <i class="fas fa-redo"></i> توليد آخر
@@ -904,32 +898,82 @@ async function generateImage() {
     </div>`;
 
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 90000);
+    // ترجمة الـ prompt لإنجليزي إذا كان يحتوي على عربي
+    let englishPrompt = prompt;
+    if (/[\u0600-\u06FF]/.test(prompt)) {
+      document.getElementById('gen-status-text').innerHTML = 'جارٍ ترجمة الوصف...<br><small>ثانية واحدة</small>';
+      englishPrompt = await translatePromptToEnglish(prompt);
+    }
 
-    const resp = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeout);
+    const fullPrompt = style ? `${englishPrompt}, ${style}` : englishPrompt;
+
+    document.getElementById('gen-status-text').innerHTML = 'جارٍ التوليد...<br><small>قد يستغرق 20-60 ثانية</small>';
+    
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        inputs: fullPrompt,
+        parameters: { width, height }
+      })
+    });
+    
+    console.log('Status:', resp.status);
+    console.log('Content-Type:', resp.headers.get('content-type'));
+
+    if (resp.status === 503) {
+      document.getElementById('gen-status-text').innerHTML = 'النموذج يستيقظ...<br><small>انتظر 30 ثانية</small>';
+      await new Promise(r => setTimeout(r, 30000));
+      return generateImage();
+    }
 
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
     const blob = await resp.blob();
-    const blobUrl = URL.createObjectURL(blob);
+    console.log('Blob size:', blob.size, 'Blob type:', blob.type);
 
+    if (blob.type === 'application/json') {
+      const text = await blob.text();
+      throw new Error(text);
+    }
+
+    const blobUrl = URL.createObjectURL(blob);
     const img = document.getElementById('gen-result-img');
     img.src = blobUrl;
     img.style.display = 'block';
-    document.getElementById('gen-open-link').href = blobUrl;
     document.getElementById('gen-loading').style.display = 'none';
-    document.getElementById('gen-dl-btn').style.display = 'flex';
+    document.getElementById('gen-dl-btn').style.display  = 'flex';
+    document.getElementById('gen-dl-btn').innerHTML += `
+      <a href="${blobUrl}" download="image.png"
+        style="padding:10px 20px;background:var(--gold);color:var(--navy);border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+        <i class="fas fa-download"></i> تحميل
+      </a>`;
     spinner.style.display = 'none';
 
   } catch (err) {
     spinner.style.display = 'none';
-    const msg = err.name === 'AbortError' ? 'انتهت مهلة الطلب — حاول مجدداً' : 'تعذّر التوليد — تحقق من اتصالك';
-    document.getElementById('gen-loading').innerHTML = `<p style="color:var(--red)">${msg}</p>
-      <button onclick="generateImage()" style="margin-top:12px;padding:10px 20px;background:var(--gold);color:var(--navy);border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+    document.getElementById('gen-loading').innerHTML = `
+      <p style="color:var(--red)">تعذّر التوليد: ${err.message}</p>
+      <button onclick="generateImage()"
+        style="margin-top:12px;padding:10px 20px;background:var(--gold);color:var(--navy);border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
         <i class="fas fa-redo"></i> إعادة المحاولة
       </button>`;
+  }
+}
+
+async function translatePromptToEnglish(text) {
+  try {
+    const resp = await fetch(
+      'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=ar|en'
+    );
+    const data = await resp.json();
+    if (data.responseStatus === 200) return data.responseData.translatedText;
+    return text;
+  } catch {
+    return text;
   }
 }
 
@@ -956,17 +1000,17 @@ async function searchPlaces() {
 
   if (!query) { showToast('أدخل مكاناً للبحث'); return; }
 
-  const searchQuery = type ? `${type} ${query}` : query;
+  const searchQuery = type ? `${type} in ${query}` : query;
   spinner.style.display = 'inline-block';
-  results.innerHTML     = '<p style="color:var(--text-muted);font-size:13px;grid-column:1/-1;">جارٍ البحث...</p>';
-  mapDiv.style.display  = 'none';
+  results.innerHTML = '<p style="color:var(--text-muted);font-size:13px;grid-column:1/-1;">جارٍ البحث...</p>';
+  mapDiv.style.display = 'none';
 
   try {
-    const res  = await fetch(
+    const resp = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=9&addressdetails=1`,
       { headers: { 'Accept-Language': 'ar' } }
     );
-    const data = await res.json();
+    const data = await resp.json();
     spinner.style.display = 'none';
 
     if (!data.length) {
@@ -982,21 +1026,28 @@ async function searchPlaces() {
 
     results.innerHTML = data.map(place => {
       const nameParts = place.display_name.split(',').slice(0, 2).join('،');
+      const name = nameParts.length > 40 ? nameParts.substring(0, 40) + '...' : nameParts;
       return `
-        <div class="place-card" onclick="showPlaceOnMap(${place.lat}, ${place.lon})">
-          <div class="place-emoji">${emoji}</div>
-          <div class="place-info">
-            <div class="place-name">${nameParts.substring(0, 50)}${nameParts.length > 50 ? '...' : ''}</div>
-            <div class="place-type">${place.type || type || 'مكان'}</div>
+        <div onclick="showPlaceOnMap(${place.lat}, ${place.lon})"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .3s;"
+          onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-4px)'"
+          onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+          <div style="background:var(--surface2);height:80px;display:flex;align-items:center;justify-content:center;font-size:36px;">
+            ${emoji}
+          </div>
+          <div style="padding:12px;">
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--text);">${name}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">${place.type || type || 'مكان'}</div>
             <a href="https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lon}&zoom=17"
-              target="_blank" class="place-map-link" onclick="event.stopPropagation()">
+              target="_blank"
+              onclick="event.stopPropagation()"
+              style="font-size:12px;color:var(--gold);text-decoration:none;">
               <i class="fas fa-map-marker-alt"></i> فتح الخريطة
             </a>
           </div>
         </div>`;
     }).join('');
 
-    // Show first result on map
     showPlaceOnMap(data[0].lat, data[0].lon);
 
   } catch(e) {
@@ -1009,9 +1060,11 @@ function showPlaceOnMap(lat, lon) {
   const mapDiv   = document.getElementById('tourism-map');
   const mapFrame = document.getElementById('tourism-map-frame');
   mapDiv.style.display = 'block';
-  const bbox  = `${lon - 0.015},${lat - 0.015},${+lon + 0.015},${+lat + 0.015}`;
+  const bbox = `${+lon - 0.015},${+lat - 0.015},${+lon + 0.015},${+lat + 0.015}`;
   mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
+  mapDiv.scrollIntoView({ behavior: 'smooth' });
 }
+
 
 // ═══════════════════════════════════════════════
 // VOICE TRANSLATOR — STT + MyMemory + TTS
