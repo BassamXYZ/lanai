@@ -219,44 +219,60 @@ function doTTS() {
   window.speechSynthesis.speak(utt);
 }
 
-// ============ TRANSLATOR (Demo) ============
-const demoTranslations = {
-  'مرحبا': { en: 'Hello', fr: 'Bonjour', de: 'Hallo', es: 'Hola', tr: 'Merhaba' },
-  'كيف حالك': { en: 'How are you?', fr: 'Comment allez-vous?', de: 'Wie geht es Ihnen?', es: '¿Cómo estás?', tr: 'Nasılsın?' },
-};
+// ============ TRANSLATOR ============
+async function doTranslate() {
+  const input  = document.getElementById('tr-input').value.trim();
+  const from   = document.getElementById('tr-from').value;
+  const to     = document.getElementById('tr-to').value;
+  const output = document.getElementById('tr-output');
 
-function doTranslate() {
-  const input = document.getElementById('tr-input').value.trim();
-  if (!input) return;
-  const to = document.getElementById('tr-to').value;
-  const from = document.getElementById('tr-from').value;
+  if (!input) { showToast('أدخل نصاً للترجمة'); return; }
+  if (from === to) { showToast('اللغتان متطابقتان'); return; }
 
-  let output = '';
-  if (to === 'en' && from === 'ar') {
-    output = input
-      .replace(/مرحبا/g, 'Hello')
-      .replace(/كيف حالك/g, 'How are you?')
-      .replace(/شكراً/g, 'Thank you')
-      .replace(/نعم/g, 'Yes')
-      .replace(/لا/g, 'No')
-      .replace(/صباح الخير/g, 'Good morning')
-      .replace(/مساء الخير/g, 'Good evening');
-    if (output === input) output = '[Demo] ' + input.split('').reverse().join('') + ' (English translation here)';
-  } else if (to === 'fr' && from === 'ar') {
-    output = input.replace(/مرحبا/g, 'Bonjour').replace(/شكراً/g, 'Merci');
-    if (output === input) output = '[Demo] Traduction française de: ' + input;
-  } else {
-    const labels = { en: 'English', fr: 'French', de: 'German', es: 'Spanish', ar: 'Arabic', zh: 'Chinese', ja: 'Japanese', tr: 'Turkish' };
-    output = `[Demo] Translation to ${labels[to] || to}: "${input}"`;
-  }
+  output.value = 'جارٍ الترجمة...';
 
-  const el = document.getElementById('tr-output');
-  el.value = '';
-  let i = 0;
-  const type = () => {
-    if (i < output.length) { el.value += output[i++]; setTimeout(type, 18); }
+  const langNames = {
+    ar:'Arabic', en:'English', fr:'French',
+    de:'German', es:'Spanish', zh:'Chinese',
+    ja:'Japanese', tr:'Turkish'
   };
-  type();
+
+  const prompt = `Translate the following text from ${langNames[from]} to ${langNames[to]}.
+Return ONLY the translated text, nothing else.
+
+Text: ${input}`;
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', "x-goog-api-key": GEMINI_API_KEY },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
+        })
+      }
+    );
+    
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const text = data.candidates[0].content.parts[0].text.trim();
+    output.value = '';
+    let i = 0;
+    const type_effect = () => {
+      if (i < text.length) {
+        output.value += text[i++];
+        setTimeout(type_effect, 10);
+      }
+    };
+    type_effect();
+
+  } catch(e) {
+    output.value = 'تعذّرت الترجمة: ' + e.message;
+    showToast('خطأ: ' + e.message);
+  }
 }
 
 function swapLangs() {
@@ -274,6 +290,122 @@ function swapLangs() {
 function copyTrans() {
   navigator.clipboard?.writeText(document.getElementById('tr-output').value);
   showToast('تم النسخ ✓');
+}
+
+// ============ FILES ============
+const storageRef = firebase.storage ? firebase.storage().ref() : null;
+
+function handleFileDrop(event) {
+  const files = event.dataTransfer.files;
+  if (files.length) uploadFilesFromList(files);
+}
+
+function uploadFiles(event) {
+  uploadFilesFromList(event.target.files);
+}
+
+function uploadFilesFromList(files) {
+  if (!storageRef) { showToast('Firebase Storage غير مفعّل'); return; }
+  Array.from(files).forEach(file => uploadSingleFile(file));
+}
+
+function uploadSingleFile(file) {
+  if (file.size > 50 * 1024 * 1024) { showToast('الملف أكبر من 50MB'); return; }
+
+  const userId  = auth.currentUser ? auth.currentUser.uid : 'guest';
+  const fileRef = storageRef.child(`files/${userId}/${Date.now()}_${file.name}`);
+  const wrap    = document.getElementById('upload-progress-wrap');
+  const bar     = document.getElementById('upload-bar');
+  const percent = document.getElementById('upload-percent');
+  const fname   = document.getElementById('upload-filename');
+
+  wrap.style.display = 'block';
+  fname.textContent  = file.name;
+
+  const task = fileRef.put(file);
+
+  task.on('state_changed',
+    snapshot => {
+      const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+      bar.style.width   = pct + '%';
+      percent.textContent = pct + '%';
+    },
+    err => {
+      showToast('فشل الرفع: ' + err.message);
+      wrap.style.display = 'none';
+    },
+    async () => {
+      const url = await task.snapshot.ref.getDownloadURL();
+      // حفظ معلومات الملف في Realtime Database
+      db.ref('files/' + (auth.currentUser ? auth.currentUser.uid : 'guest')).push({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        url:  url,
+        path: task.snapshot.ref.fullPath,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      wrap.style.display = 'none';
+      bar.style.width    = '0%';
+      showToast('تم رفع ' + file.name + ' ✓');
+      loadFiles();
+    }
+  );
+}
+
+function loadFiles() {
+  const userId = auth.currentUser ? auth.currentUser.uid : 'guest';
+  const list   = document.getElementById('files-list');
+  if (!list) return;
+  list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">جارٍ التحميل...</p>';
+
+  db.ref('files/' + userId).orderByChild('createdAt').once('value', snapshot => {
+    if (!snapshot.exists()) {
+      list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">لا توجد ملفات بعد</p>';
+      return;
+    }
+
+    const items = [];
+    snapshot.forEach(child => items.unshift({ key: child.key, ...child.val() }));
+
+    list.innerHTML = items.map(f => {
+      const size = f.size > 1024 * 1024
+        ? (f.size / 1024 / 1024).toFixed(1) + ' MB'
+        : (f.size / 1024).toFixed(0) + ' KB';
+
+      const icon = f.type.startsWith('image') ? 'fa-image c-teal'
+        : f.type === 'application/pdf' ? 'fa-file-pdf c-red'
+        : f.type.startsWith('video') ? 'fa-file-video c-purple'
+        : 'fa-file c-gold';
+
+      return `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border);">
+          <i class="fas ${icon}" style="font-size:22px;width:28px;text-align:center;"></i>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name}</div>
+            <div style="font-size:11px;color:var(--text-muted);">${size}</div>
+          </div>
+          <a href="${f.url}" target="_blank" class="btn-ghost-small" style="text-decoration:none;">
+            <i class="fas fa-download"></i>
+          </a>
+          <button class="btn-ghost-small" onclick="deleteFile('${f.key}','${f.path}')"
+            style="color:var(--red);border-color:rgba(231,76,60,0.3);">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>`;
+    }).join('');
+  });
+}
+
+function deleteFile(key, path) {
+  if (!confirm('هل تريد حذف هذا الملف؟')) return;
+  const userId = auth.currentUser ? auth.currentUser.uid : 'guest';
+  db.ref('files/' + userId + '/' + key).remove();
+  if (storageRef) {
+    firebase.storage().ref(path).delete().catch(() => {});
+  }
+  showToast('تم الحذف ✓');
+  loadFiles();
 }
 
 // ============ TASKS ============

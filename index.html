@@ -506,6 +506,55 @@
         </div>
       </div>
     </div>
+    
+    <!-- ===== TRANSLATOR ===== -->
+    <div id="view-translator" class="tool-view">
+      <div class="panel-header">
+        <div class="panel-icon bg-purple"><i class="fas fa-language c-purple"></i></div>
+        <div><div class="panel-title">مترجم متعدد اللغات</div><div class="panel-sub">ترجمة نصية دقيقة بأكثر من 50 لغة</div></div>
+      </div>
+      <div class="translator-ui">
+        <div class="translator-panel">
+          <div class="translator-header">
+            <span style="font-size:14px;font-weight:700;">النص الأصلي</span>
+            <select class="lang-select" id="tr-from">
+              <option value="ar">العربية</option>
+              <option value="en">الإنجليزية</option>
+              <option value="fr">الفرنسية</option>
+              <option value="de">الألمانية</option>
+              <option value="es">الإسبانية</option>
+              <option value="zh">الصينية</option>
+              <option value="ja">اليابانية</option>
+              <option value="tr">التركية</option>
+            </select>
+          </div>
+          <textarea class="stt-textarea" id="tr-input" placeholder="اكتب النص هنا للترجمة..." style="min-height:200px;"></textarea>
+          <button class="btn-gold" style="margin-top:12px;padding:10px 24px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;" onclick="doTranslate()"><i class="fas fa-exchange-alt"></i> ترجم الآن</button>
+        </div>
+        <div class="swap-btn" onclick="swapLangs()"><i class="fas fa-exchange-alt"></i></div>
+        <div class="translator-panel">
+          <div class="translator-header">
+            <span style="font-size:14px;font-weight:700;">الترجمة</span>
+            <select class="lang-select" id="tr-to">
+              <option value="en">الإنجليزية</option>
+              <option value="ar">العربية</option>
+              <option value="fr">الفرنسية</option>
+              <option value="de">الألمانية</option>
+              <option value="es">الإسبانية</option>
+              <option value="zh">الصينية</option>
+              <option value="ja">اليابانية</option>
+              <option value="tr">التركية</option>
+            </select>
+          </div>
+          <textarea class="stt-textarea" id="tr-output" placeholder="ستظهر الترجمة هنا..." style="min-height:200px;" readonly></textarea>
+          <div style="margin-top:12px;display:flex;gap:10px;">
+            <button class="btn-ghost" style="padding:8px 16px;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;" onclick="copyTrans()"><i class="fas fa-copy"></i> نسخ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
     <!-- ===== STT ===== -->
     <div id="view-stt" class="tool-view">
       <div class="panel-header">
@@ -544,9 +593,47 @@
     <div id="view-files" class="tool-view">
       <div class="panel-header">
         <div class="panel-icon bg-cyan"><i class="fas fa-folder-open c-cyan"></i></div>
-        <div><div class="panel-title">حافظة الملفات</div><div class="panel-sub">إدارة ومشاركة ملفاتك</div></div>
+        <div>
+          <div class="panel-title">حافظة الملفات</div>
+          <div class="panel-sub">رفع وإدارة ملفاتك بـ Firebase</div>
+        </div>
       </div>
-      <div class="coming-soon"><i class="fas fa-folder-open"></i><h3>قريباً جداً</h3><p>نظام إدارة الملفات الذكي مع تحليل المحتوى والمشاركة الآمنة — قيد التطوير.</p></div>
+
+      <!-- رفع ملف -->
+      <div style="background:var(--surface);border:2px dashed var(--border-bright);border-radius:16px;padding:32px;text-align:center;margin-bottom:20px;cursor:pointer;"
+        onclick="document.getElementById('file-input').click()"
+        ondragover="event.preventDefault();this.style.borderColor='var(--gold)'"
+        ondragleave="this.style.borderColor='var(--border-bright)'"
+        ondrop="event.preventDefault();this.style.borderColor='var(--border-bright)';handleFileDrop(event)">
+        <i class="fas fa-cloud-upload-alt" style="font-size:40px;color:var(--gold);margin-bottom:12px;display:block;"></i>
+        <p style="font-size:15px;font-weight:700;margin-bottom:4px;">اسحب الملف هنا أو اضغط للرفع</p>
+        <p style="font-size:12px;color:var(--text-muted);">يدعم: صور، PDF، مستندات، فيديو — حتى 50MB</p>
+        <input type="file" id="file-input" style="display:none;" multiple onchange="uploadFiles(event)">
+      </div>
+
+      <!-- شريط التقدم -->
+      <div id="upload-progress-wrap" style="display:none;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+          <span id="upload-filename">جارٍ الرفع...</span>
+          <span id="upload-percent">0%</span>
+        </div>
+        <div style="background:var(--surface2);border-radius:100px;height:8px;">
+          <div id="upload-bar" style="background:var(--gold);height:8px;border-radius:100px;width:0%;transition:width 0.3s;"></div>
+        </div>
+      </div>
+
+      <!-- قائمة الملفات -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <span style="font-size:15px;font-weight:700;">ملفاتي</span>
+          <button class="btn-ghost-small" onclick="loadFiles()">
+            <i class="fas fa-sync-alt"></i> تحديث
+          </button>
+        </div>
+        <div id="files-list">
+          <p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">جارٍ التحميل...</p>
+        </div>
+      </div>
     </div>
 
     <!-- ===== GRAMMAR ===== -->
@@ -1062,6 +1149,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 <script src="./index.js"></script>
 </body>
 </html>
