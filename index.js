@@ -15,7 +15,7 @@
   const db = firebase.database();
   const auth = firebase.auth();
   let currentUser = null;
-  
+  const GEMINI_API_KEY = 'AIzaSyDB2mdotxqWcPp5e099TCrd6m8dt2Cylp0';
   
 // ============ NAVIGATION ============
 function enterDashboard(view) {
@@ -103,7 +103,6 @@ async function toggleRecording() {
       mediaRecorder.start();
 
       isRecording = true;
-      recSeconds = 0;
       document.getElementById('rec-btn').classList.add('recording');
       document.getElementById('rec-icon').className = 'fas fa-stop';
       document.getElementById('rec-status').textContent = '● جارٍ التسجيل...';
@@ -146,6 +145,7 @@ function resetWave() {
     const el = document.getElementById('wb' + i);
     if (el) el.style.height = '8px';
   }
+      recSeconds = 0;
 }
 
 function saveRecording() {
@@ -996,7 +996,6 @@ async function generateResearch() {
   const lang    = document.getElementById('research-lang').value;
   const length  = document.getElementById('research-length').value;
   const details = document.getElementById('research-details').value.trim();
-  const GEMINI_API_KEY = 'AIzaSyDB2mdotxqWcPp5e099TCrd6m8dt2Cylp0';
 
   if (!topic) { showToast('أدخل موضوع البحث'); return; }
 
@@ -1179,7 +1178,6 @@ function showPlaceOnMap(lat, lon) {
 
 // ═══════════════════════════════════════════════
 // VOICE TRANSLATOR — STT + MyMemory + TTS
-// لا يحتاج API Key — كله مجاني
 // ═══════════════════════════════════════════════
 let vtRecognition = null;
 let vtIsListening = false;
@@ -1193,10 +1191,10 @@ function toggleVoiceTranslator() {
 }
 
 function startVoiceTranslator() {
-  const SR       = window.SpeechRecognition || window.webkitSpeechRecognition;
-  vtRecognition  = new SR();
-  vtRecognition.lang        = document.getElementById('vt-from-lang').value;
-  vtRecognition.continuous  = false;
+  const SR      = window.SpeechRecognition || window.webkitSpeechRecognition;
+  vtRecognition = new SR();
+  vtRecognition.lang           = document.getElementById('vt-from-lang').value;
+  vtRecognition.continuous     = false;
   vtRecognition.interimResults = false;
 
   vtRecognition.onstart = () => {
@@ -1211,17 +1209,16 @@ function startVoiceTranslator() {
     const spokenText = event.results[0][0].transcript;
     document.getElementById('vt-original-text').textContent = spokenText;
     document.getElementById('vt-original-text').style.color = 'var(--text)';
-    document.getElementById('vt-status').textContent = 'جارٍ الترجمة...';
+    document.getElementById('vt-status').textContent = 'جارٍ الترجمة بـ Gemini...';
+    document.getElementById('vt-status').style.color = 'var(--gold)';
+    stopVoiceTranslator();
 
-    // Translate using MyMemory
-    const fromLang = document.getElementById('vt-from-lang').value.split('-')[0];
     const toLang   = document.getElementById('vt-to-lang').value;
-    const translated = await translateWithMyMemory(spokenText, fromLang, toLang);
+    const translated = await translateWithGemini(spokenText, toLang, GEMINI_API_KEY);
 
     document.getElementById('vt-translated-text').value = translated;
     document.getElementById('vt-status').textContent    = '✓ تمت الترجمة';
     document.getElementById('vt-status').style.color    = 'var(--green)';
-    stopVoiceTranslator();
   };
 
   vtRecognition.onerror = (e) => {
@@ -1240,13 +1237,39 @@ function stopVoiceTranslator() {
   document.getElementById('vt-rec-icon').className = 'fas fa-microphone';
 }
 
-async function translateWithMyMemory(text, from, to) {
+async function translateWithGemini(text, toLang, apiKey) {
+  const langNames = {
+    en:'English', ar:'Arabic', fr:'French',
+    de:'German', es:'Spanish', tr:'Turkish', zh:'Chinese'
+  };
+  const targetLang = langNames[toLang] || toLang;
+
+  if (!apiKey) {
+    showToast('أدخل Gemini API Key أولاً');
+    return '[أدخل API Key]';
+  }
+
   try {
-    const res  = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
-    const data = await res.json();
-    return data.responseStatus === 200 ? data.responseData.translatedText : text;
-  } catch(e) {
-    return '[تعذّر الترجمة]';
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', "x-goog-api-key": GEMINI_API_KEY },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Translate the following text to ${targetLang}. Return ONLY the translated text, nothing else:\n\n${text}`
+            }]
+          }]
+        })
+      }
+    );
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.candidates[0].content.parts[0].text.trim();
+  } catch (e) {
+    showToast('خطأ في Gemini: ' + e.message);
+    return '[تعذّرت الترجمة]';
   }
 }
 

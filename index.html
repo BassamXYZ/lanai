@@ -445,58 +445,67 @@
     <div id="view-voice-translator" class="tool-view">
       <div class="panel-header">
         <div class="panel-icon bg-teal"><i class="fas fa-headphones c-teal"></i></div>
-        <div><div class="panel-title">المترجم الصوتي</div><div class="panel-sub">ترجمة فورية للصوت بين اللغات</div></div>
+        <div>
+          <div class="panel-title">المترجم الصوتي</div>
+          <div class="panel-sub">ترجمة فورية للصوت بـ Gemini AI</div>
+        </div>
       </div>
-      <div class="coming-soon"><i class="fas fa-headphones"></i><h3>قريباً جداً</h3><p>ترجمة فورية للكلام بين العربية وأكثر من 50 لغة عالمية — قريباً.</p></div>
-    </div>
-
-    <!-- ===== TRANSLATOR ===== -->
-    <div id="view-translator" class="tool-view">
-      <div class="panel-header">
-        <div class="panel-icon bg-purple"><i class="fas fa-language c-purple"></i></div>
-        <div><div class="panel-title">مترجم متعدد اللغات</div><div class="panel-sub">ترجمة نصية دقيقة بأكثر من 50 لغة</div></div>
-      </div>
-      <div class="translator-ui">
-        <div class="translator-panel">
-          <div class="translator-header">
-            <span style="font-size:14px;font-weight:700;">النص الأصلي</span>
-            <select class="lang-select" id="tr-from">
-              <option value="ar">العربية</option>
-              <option value="en">الإنجليزية</option>
-              <option value="fr">الفرنسية</option>
-              <option value="de">الألمانية</option>
-              <option value="es">الإسبانية</option>
-              <option value="zh">الصينية</option>
-              <option value="ja">اليابانية</option>
-              <option value="tr">التركية</option>
+      <div style="max-width:700px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:140px;">
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">من</label>
+            <select id="vt-from-lang" class="writer-select" style="margin-bottom:0;">
+              <option value="ar-SA">العربية</option>
+              <option value="en-US">الإنجليزية</option>
+              <option value="fr-FR">الفرنسية</option>
+              <option value="de-DE">الألمانية</option>
+              <option value="es-ES">الإسبانية</option>
+              <option value="tr-TR">التركية</option>
+              <option value="zh-CN">الصينية</option>
             </select>
           </div>
-          <textarea class="stt-textarea" id="tr-input" placeholder="اكتب النص هنا للترجمة..." style="min-height:200px;"></textarea>
-          <button class="btn-gold" style="margin-top:12px;padding:10px 24px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;border-radius:10px;cursor:pointer;" onclick="doTranslate()"><i class="fas fa-exchange-alt"></i> ترجم الآن</button>
-        </div>
-        <div class="swap-btn" onclick="swapLangs()"><i class="fas fa-exchange-alt"></i></div>
-        <div class="translator-panel">
-          <div class="translator-header">
-            <span style="font-size:14px;font-weight:700;">الترجمة</span>
-            <select class="lang-select" id="tr-to">
+          <div style="margin-top:16px;font-size:20px;color:var(--gold);">⇄</div>
+          <div style="flex:1;min-width:140px;">
+            <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">إلى</label>
+            <select id="vt-to-lang" class="writer-select" style="margin-bottom:0;">
               <option value="en">الإنجليزية</option>
               <option value="ar">العربية</option>
               <option value="fr">الفرنسية</option>
               <option value="de">الألمانية</option>
               <option value="es">الإسبانية</option>
-              <option value="zh">الصينية</option>
-              <option value="ja">اليابانية</option>
               <option value="tr">التركية</option>
+              <option value="zh">الصينية</option>
             </select>
           </div>
-          <textarea class="stt-textarea" id="tr-output" placeholder="ستظهر الترجمة هنا..." style="min-height:200px;" readonly></textarea>
-          <div style="margin-top:12px;display:flex;gap:10px;">
-            <button class="btn-ghost" style="padding:8px 16px;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer;" onclick="copyTrans()"><i class="fas fa-copy"></i> نسخ</button>
+        </div>
+        <div style="text-align:center;margin-bottom:24px;">
+          <div class="rec-btn" id="vt-rec-btn" onclick="toggleVoiceTranslator()" style="margin:0 auto 12px;">
+            <i class="fas fa-microphone" id="vt-rec-icon"></i>
           </div>
+          <div id="vt-status" style="font-size:13px;color:var(--text-muted);">اضغط للتحدث</div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">النص المسموع</label>
+          <div id="vt-original-text"
+            style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;min-height:60px;font-size:15px;color:var(--text-muted);line-height:1.8;">
+            سيظهر هنا ما قلته...
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">الترجمة</label>
+          <textarea id="vt-translated-text" class="stt-textarea" style="min-height:80px;" readonly
+            placeholder="ستظهر الترجمة هنا..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-gold-small" onclick="speakTranslation()">
+            <i class="fas fa-volume-up"></i> استمع للترجمة
+          </button>
+          <button class="btn-ghost-small" onclick="copyText('vt-translated-text')">
+            <i class="fas fa-copy"></i> نسخ
+          </button>
         </div>
       </div>
     </div>
-
     <!-- ===== STT ===== -->
     <div id="view-stt" class="tool-view">
       <div class="panel-header">
