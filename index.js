@@ -29,9 +29,6 @@ function enterDashboard(view) {
 function exitDashboard() {
   document.getElementById('dashboard').classList.remove('active');
   document.getElementById('landing').classList.add('active');
-  if (view) {
-    setTimeout(() => showView(view, null), 100);
-  }
 }
 
 function goLanding() {
@@ -492,10 +489,9 @@ function showToast(msg) {
   setTimeout(() => t.remove(), 2500);
 }
 
-// Load jsQR for QR scanning
-const jsQR = document.createElement('script');
-jsQR.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
-document.head.appendChild(jsQR);
+const jsQRScript = document.createElement('script');
+jsQRScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
+document.head.appendChild(jsQRScript);
 
 // ============ EXCHANGE RATES ============
 async function fetchExchangeRates() {
@@ -885,68 +881,60 @@ async function generateImage() {
 
   const [width, height] = sizeStr.split('x').map(Number);
   const fullPrompt = style ? `${prompt}, ${style}` : prompt;
+  const seed = Math.floor(Math.random() * 999999);
+  const url  = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=flux&enhance=false`;
 
   const spinner   = document.getElementById('gen-spinner');
   const outputDiv = document.getElementById('gen-output');
-
   spinner.style.display = 'inline-block';
+
   outputDiv.innerHTML = `
-    <div style="text-align:center;">
-      <div class="tool-spinner" style="width:40px;height:40px;border-width:3px;"></div>
-      <p style="color:var(--text-muted);margin-top:16px;font-size:14px;">
-        جارٍ التوليد...<br>
-        <small style="font-size:12px;">قد يستغرق 15-30 ثانية</small>
-      </p>
+    <div id="gen-loading" style="text-align:center;padding:40px;">
+      <div class="tool-spinner" style="width:40px;height:40px;border-width:3px;margin:0 auto;"></div>
+      <p style="color:var(--text-muted);margin-top:16px;font-size:14px;">جارٍ التوليد...<br><small>قد يستغرق 30-60 ثانية</small></p>
+    </div>
+    <img id="gen-result-img" style="max-width:100%;border-radius:12px;border:1px solid var(--border-bright);display:none;">
+    <div id="gen-dl-btn" style="display:none;gap:10px;margin-top:14px;justify-content:center;">
+      <a id="gen-open-link" href="#" target="_blank"
+        style="padding:10px 20px;background:var(--gold);color:var(--navy);border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+        <i class="fas fa-external-link-alt"></i> فتح الصورة
+      </a>
+      <button onclick="generateImage()"
+        style="padding:10px 20px;background:transparent;border:1px solid var(--border-bright);color:var(--text);border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;">
+        <i class="fas fa-redo"></i> توليد آخر
+      </button>
     </div>`;
 
   try {
-    const res = await fetch(
-      'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer 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',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          inputs: fullPrompt,
-          parameters: { width, height }
-        })
-      }
-    );
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 90000);
 
-    if (!res.ok) throw new Error(await res.text());
+    const resp = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
 
-    const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const img = document.getElementById('gen-result-img');
+    img.src = blobUrl;
+    img.style.display = 'block';
+    document.getElementById('gen-open-link').href = blobUrl;
+    document.getElementById('gen-loading').style.display = 'none';
+    document.getElementById('gen-dl-btn').style.display = 'flex';
     spinner.style.display = 'none';
-    outputDiv.innerHTML = `
-      <img src="${url}" style="max-width:100%;border-radius:12px;border:1px solid var(--border-bright);display:block;">
-      <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
-        <a href="${url}" download="lan-ai-image.png"
-          style="padding:10px 20px;background:var(--gold);color:var(--navy);border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-          <i class="fas fa-download"></i> تحميل
-        </a>
-        <button onclick="generateImage()"
-          style="padding:10px 20px;background:transparent;border:1px solid var(--border-bright);color:var(--text);border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;">
-          <i class="fas fa-redo"></i> توليد آخر
-        </button>
-      </div>`;
 
-    genImageHistory.unshift(url);
-    renderGenHistory();
-    showToast('تم توليد الصورة ✓');
-
-  } catch(e) {
+  } catch (err) {
     spinner.style.display = 'none';
-    outputDiv.innerHTML = `
-      <div style="text-align:center;color:var(--red);padding:40px;">
-        <i class="fas fa-exclamation-triangle" style="font-size:32px;display:block;margin-bottom:12px;"></i>
-        تعذّر التوليد — تحقق من الاتصال
-      </div>`;
+    const msg = err.name === 'AbortError' ? 'انتهت مهلة الطلب — حاول مجدداً' : 'تعذّر التوليد — تحقق من اتصالك';
+    document.getElementById('gen-loading').innerHTML = `<p style="color:var(--red)">${msg}</p>
+      <button onclick="generateImage()" style="margin-top:12px;padding:10px 20px;background:var(--gold);color:var(--navy);border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+        <i class="fas fa-redo"></i> إعادة المحاولة
+      </button>`;
   }
 }
+
 function renderGenHistory() {
   const el = document.getElementById('gen-history');
   if (!genImageHistory.length) return;
